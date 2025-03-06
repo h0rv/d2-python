@@ -3,6 +3,3 @@ cache-dir = ".cache"
 [virtualenvs]
 create = true
 in-project = true
-
-[virtualenvs.options]
-always-copy = true
