@@ -66,10 +66,27 @@ See the [tests](/tests/test_py_d2) for more detailed usage examples.
 - [x] Icons in shapes
 - [x] Support for empty labels
 - [x] Shape links
-- [ ] SQL table shapes
+- [x] SQL table shapes
+- [x] Layers
 - [ ] Class shapes
 - [ ] Comments
-- [ ] Layers
+
+## Examples
+
+`examples/`
+
+```sh
+poetry run python examples/<example>.py
+```
+
+SQL Table:
+
+```sh
+poetry run python example/simple_sql_schema.py
+# Open diagram:
+open simple_sql_schema.svg
+```
+
 
 
 ## Development
