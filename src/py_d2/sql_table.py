@@ -1,10 +1,16 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Union
 
-from py_d2.connection import D2Connection, Direction
-from py_d2.shape import D2Shape, Shape
+from py_d2.connection import D2Connection
+from py_d2.connection import Direction
+from py_d2.shape import D2Shape
+from py_d2.shape import Shape
 
 
 class SQLConstraint(Enum):
