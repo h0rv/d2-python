@@ -1,13 +1,10 @@
-# -*- coding: utf-8 -*-
 from py_d2.connection import Direction
 from py_d2.diagram import D2Diagram
 from py_d2.shape import D2Shape
-from py_d2.sql_table import (
-    SQLConstraint,
-    SQLField,
-    SQLTable,
-    create_foreign_key_connection,
-)
+from py_d2.sql_table import SQLConstraint
+from py_d2.sql_table import SQLField
+from py_d2.sql_table import SQLTable
+from py_d2.sql_table import create_foreign_key_connection
 from py_d2.style import D2Style
 
 

@@ -1,10 +1,9 @@
-# -*- coding: utf-8 -*-
 from typing import List
 from typing import Optional
 
 
 def indent(line, n: int = 2) -> str:
-    return f"{' '*n}{line}"
+    return f"{' ' * n}{line}"
 
 
 def indent_lines(items: List[str], n: int = 2) -> List[str]:

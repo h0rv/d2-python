@@ -1,66 +1,72 @@
-[tool.poetry]
+[project]
 name = "py-d2"
-version = "1.0.2"
+version = "1.1.0"
 description = "An unofficial, fully typed python interface for building .d2 graph files in python."
-authors = ["David Revay <daverevay@gmail.com>"]
-license = "MIT"
+authors = [
+    {name = "David Revay", email = "daverevay@gmail.com"},
+    {name = "Robby", email = "h0rv@users.noreply.github.com"}
+]
+license = {text = "MIT"}
 readme = "README.md"
-homepage = "https://mrblenny.github.io/py-d2/"
-repository = "https://github.com/mrblenny/py-d2"
-documentation = "https://github.com/MrBlenny/py-d2/blob/main/README.md"
+requires-python = ">=3.8"
 keywords = [
+    "d2",
     "py-d2",
     "d2-lang",
     "d2-python",
+    "declarative-diagrams",
     "diagram-language",
     "terrastruct",
 ]
-packages = [
-    { include = "py_d2", from = "src" },
-    { include = "src/py_d2/py.typed" }
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
 ]
 
-[tool.poetry.scripts]
+[project.urls]
+Repository = "https://github.com/h0rv/py-d2"
+Documentation = "https://github.com/h0rv/py-d2/blob/main/README.md"
+"Bug Tracker" = "https://github.com/h0rv/py-d2/issues"
+
+[project.scripts]
 example = "py_d2.main:example"
 
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.12.3",
+    "mypy>=0.982",
+    "pre-commit>=2.20.0",
+]
+test = [
+    "pytest>=7.1.3",
+]
+coverage = [
+    "coverage>=6.5.0",
+    "pytest-cov>=4.0.0",
+]
 
-[tool.poetry.urls]
-"Bug Tracker" = "https://github.com/mrblenny/py-d2/issues"
+[tool.uv]
+package = true
 
-[tool.poetry.dependencies]
-python = "^3.7"
-
-[tool.poetry.group.dev]
-optional = true
-
-[tool.poetry.group.dev.dependencies]
-isort = "^5.10.1"
-black = ">=22.8,<24.0"
-mypy = "^0.982"
-flake8 = "^5.0.4"
-Flake8-pyproject = "^1.1.0.post0"
-flake8-bugbear = "^22.9.23"
-flake8-logging-format = "^0.9.0"
-ipdb = "^0.13.9"
-tox = "^3.26.0"
-pre-commit = "^2.20.0"
-
-[tool.poetry.group.test]
-optional = true
-
-[tool.poetry.group.test.dependencies]
-pytest = "^7.1.3"
-
-[tool.poetry.group.coverage]
-optional = true
-
-[tool.poetry.group.coverage.dependencies]
-coverage = "^6.5.0"
-pytest-cov = "^4.0.0"
+[tool.uv.sources]
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["uv_build>=0.7.19,<0.8.0"]
+build-backend = "uv_build"
+
+[tool.mypy]
+mypy_path = "src"
+warn_return_any = true
+warn_unused_configs = true
+warn_unreachable = true
 
 [tool.pytest.ini_options]
 minversion = "6.0"
@@ -69,133 +75,34 @@ testpaths = ["tests"]
 pythonpath = ["tests"]
 norecursedirs = ["tests/_cache"]
 
-[tool.black]
+[tool.ruff]
 line-length = 120
-include = '\.pyi?$'
-extend-exclude = '''
-# A regex preceded with ^/ will apply only to files and directories
-# in the root of the project.
-(
-    \.pytest_cache
-  | \.git
-  | \.mypy_cache
-)
-'''
+target-version = "py38"
 
-[tool.isort]
-profile = 'black'
-# The 'black' profile means:
-#   multi_line_output = 3
-#   include_trailing_comma = true
-#   force_grid_wrap = 0
-#   use_parentheses = true
-#   ensure_newline_before_comments = true
-#   line_length = 88
-line_length = 120                 # override black provile line_length
-force_single_line = true         # override black profile multi_line_output
-star_first = true
-group_by_package = true
-force_sort_within_sections = true
-lines_after_imports = 2
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+]
+ignore = [
+    "UP006", # Use `list` instead of `List` (requires Python 3.9+, keep List for 3.7+ compatibility)
+    "UP007", # Use `X | Y` for type annotations (requires Python 3.10+, keep Union for 3.7+ compatibility)
+    "UP045", # Use `X | None` for type annotations (requires Python 3.10+, keep Optional for 3.7+ compatibility)
+]
 
-honor_noqa = true
-atomic = true
-ignore_comments = false
-skip_gitignore = true
-src_paths = ['src', 'tests']
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
 
-
-[tool.flake8]
-max-line-length = 120
-max-complexity = 18
-count = true
-show-source = true
-statistics = true
-disable-noqa = false
-enable-extensions = [
-    'G', # flake8-logging-format
-]
-# it's not a bug that we aren't using all of hacking
-extend-ignore = [
-    # H101: Use TODO(NAME)
-    'H101',
-    # H202: assertRaises Exception too broad
-    'H202',
-    # H233: Python 3.x incompatible use of print operator
-    'H233',
-    # H301: one import per line
-    'H301',
-    # H306: imports not in alphabetical order (time, os)
-    'H306',
-    # H401: docstring should not start with a space
-    # 'H401',
-    # H403: multi line docstrings should end on a new line
-    'H403',
-    # H404: multi line docstring should start without a leading new line
-    'H404',
-    # H405: multi line docstring summary not separated with an empty line
-    'H405',
-    # H501: Do not use self.__dict__ for string formatting
-    'H501',
-    # F401: module imported but unused
-    #'F401'
-]
-# 'select' defaults to: E,F,W,C90
-extend-select = [
-    # * Default warnings reported by flake8-bugbear (B) -
-    #   https://github.com/PyCQA/flake8-bugbear#list-of-warnings
-    'B',
-    # * The B950 flake8-bugbear opinionated warnings -
-    #   https://github.com/PyCQA/flake8-bugbear#opinionated-warnings
-    'B9',
-    #
-    # * Complexity violations reported by mccabe (C) -
-    #   http://flake8.pycqa.org/en/latest/user/error-codes.html#error-violation-codes
-    #   mccabe only ever reports one violation - C901 based on the complexity value
-    #   provided by the user.
-    #   This is selected by default.
-    #'C90',
-    #
-    # * Documentation conventions compliance reported by pydocstyle (D) -
-    #   http://www.pydocstyle.org/en/stable/error_codes.html
-    #'D', # FIXME TODO
-    #
-    # * Default errors reported by pycodestyle (E) -
-    #   https://pycodestyle.readthedocs.io/en/latest/intro.html#error-codes
-    #   This is selected by default.
-    #'E',
-    #
-    # * Default errors reported by pyflakes (F) -
-    #   http://flake8.pycqa.org/en/latest/user/error-codes.html
-    #   This is selected by default.
-    #'F',
-    #
-    # * flake8-mypy - enable limited type checking as a linter
-    #   http://flake8.pycqa.org/en/latest/user/error-codes.html
-    #'T4', # FIXME TODO
-    #
-    # * Default warnings reported by pycodestyle (W) -
-    #   https://pycodestyle.readthedocs.io/en/latest/intro.html#error-codes
-    #   This is selected by default.
-    #'W',
-]
-extend-exclude = [
-    '.github',
-    '.gitlab',
-    '.Python',
-    '.*.pyc',
-    '.*.pyo',
-    '.*.pyd',
-    '.*.py.class',
-    '*.egg-info',
-    'venv*',
-    '.venv*',
-    '.*_cache',
-    'lib',
-    'lib64',
-    '.*.so',
-    'build',
-    'dist',
-    'sdist',
-    'wheels',
-]
+[tool.ruff.lint.isort]
+force-single-line = true
+force-sort-within-sections = true
+lines-after-imports = 2
+known-first-party = ["py_d2"]

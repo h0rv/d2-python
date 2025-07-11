@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from py_d2.connection import D2Connection
 from py_d2.shape import D2Shape
 from py_d2.shape import D2Text

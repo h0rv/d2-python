@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from py_d2.connection import D2Connection
 from py_d2.diagram import D2Diagram
 from py_d2.diagram import Layer
@@ -21,7 +20,7 @@ def test_d2_layer_single_subdiagram():
 
     root_diagram = D2Diagram(connections=[root_connection], layers=[layer])
 
-    expected_output = "x -> y\n" "layers: {\n" "  numbers: {\n" "    1 -> 2\n" "  }\n" "}"
+    expected_output = "x -> y\nlayers: {\n  numbers: {\n    1 -> 2\n  }\n}"
 
     assert str(root_diagram) == expected_output
 
@@ -37,7 +36,7 @@ def test_d2_layer_two_layers_depth_1():
     layer2 = Layer(name="layer2", diagram=layer2_diagram)
 
     root_diagram = D2Diagram(layers=[layer1, layer2])
-    expected_output = "layers: {\n" "  layer1: {\n" "    a -> b\n" "  }\n" "  layer2: {\n" "    c -> d\n" "  }\n" "}"
+    expected_output = "layers: {\n  layer1: {\n    a -> b\n  }\n  layer2: {\n    c -> d\n  }\n}"
     assert str(root_diagram) == expected_output
 
 

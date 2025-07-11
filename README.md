@@ -76,13 +76,13 @@ See the [tests](/tests/test_py_d2) for more detailed usage examples.
 `examples/`
 
 ```sh
-poetry run python examples/<example>.py
+uv run python examples/<example>.py
 ```
 
 SQL Table:
 
 ```sh
-poetry run python example/simple_sql_schema.py
+uv run python example/simple_sql_schema.py
 # Open diagram:
 open simple_sql_schema.svg
 ```
@@ -92,8 +92,8 @@ open simple_sql_schema.svg
 ## Development
 ### Prerequisite
 
-- [Python 3.7+](https://www.python.org/)
-- [Poetry 1.3](https://python-poetry.org/)
+- [Python 3.8+](https://www.python.org/)
+- [uv](https://docs.astral.sh/uv/)
 - [pre-commit](https://pre-commit.com/)
 
 ### Installation
@@ -107,15 +107,15 @@ following the steps below to setup the project:
 git clone git@github.com:MrBlenny/py-d2.git && cd py-d2
 
 # Install all dependencies
-poetry install --sync --all-extras --with dev,test,coverage
+uv sync --all-extras --dev
 
 # install git hook scripts for development
 pre-commit install
 
-# Install dependencies with group 'dev'、'test' for development
-poetry install --with dev,test
+# Install dev dependencies for development
+uv sync --dev
 # Only install required dependencies for production
-poetry install
+uv sync
 ```
 
 ### Usage
@@ -124,32 +124,20 @@ There are some useful commands for development:
 
 ```bash
 # Run the example
-poetry run example
-
-# Debug with ipdb3
-poetry run ipdb3 ./src/py_d2/main.py
+uv run example
 
 # Code test
-poetry run pytest -s
+uv run pytest -s
 
-# Run default coverage test
-poetry run tox
+# Lint and format with ruff
+uv run ruff check ./src
 
-# Run example project coverage test at python 3.9 and 3.10
-poetry run tox -e py{39,310}-py-d2
-
-# Lint with black
-poetry run black ./src --check
-
-# Format code with black
-poetry run black ./src
+# Format code with ruff
+uv run ruff format ./src
 
 # Check with mypy
-poetry run mypy ./src
+uv run mypy ./src
 
-# Check import order with isort
-poetry run isort ./src --check
-
-# Lint with flake8
-poetry run flake8 ./src
+# Run coverage test
+uv run pytest -s --cov=./src --cov-report=term-missing
 ```

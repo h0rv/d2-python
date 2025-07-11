@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from py_d2.style import D2Style
 
 
