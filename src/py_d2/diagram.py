@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from __future__ import annotations
 
 from typing import List
@@ -14,12 +13,12 @@ class Layer:
     def __init__(
         self,
         name: str,
-        diagram: Optional["D2Diagram"] = None,
+        diagram: Optional[D2Diagram] = None,
     ):
         self.name = name
         self.diagram = diagram or D2Diagram()
 
-    def set_diagram(self, diagram: "D2Diagram"):
+    def set_diagram(self, diagram: D2Diagram):
         self.diagram = diagram
 
     def lines(self, depth=1) -> List[str]:

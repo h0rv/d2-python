@@ -2,7 +2,10 @@ import os
 import subprocess
 
 from py_d2.diagram import D2Diagram
-from py_d2.sql_table import SQLConstraint, SQLTable, create_foreign_key_connection
+from py_d2.sql_table import SQLConstraint
+from py_d2.sql_table import SQLTable
+from py_d2.sql_table import create_foreign_key_connection
+
 
 FILE_NAME = "simple_sql_schema"
 
