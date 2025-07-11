@@ -92,7 +92,7 @@ open simple_sql_schema.svg
 ## Development
 ### Prerequisite
 
-- [Python 3.7+](https://www.python.org/)
+- [Python 3.8+](https://www.python.org/)
 - [uv](https://docs.astral.sh/uv/)
 - [pre-commit](https://pre-commit.com/)
 
