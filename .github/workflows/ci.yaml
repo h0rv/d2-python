@@ -18,11 +18,11 @@ jobs:
         os: [ubuntu-latest]
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install uv
@@ -58,18 +58,10 @@ jobs:
         os: [ubuntu-latest]
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Get the version
         id: get_version
-        run: echo ::set-output name=VERSION::$(echo $GITHUB_REF | cut -d / -f 3)
-      - name: Build changelog
-        id: build_changelog
-        uses: mikepenz/release-changelog-builder-action@v3.5.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          configuration: '.github/config/changelog_configuration.json'
-          ignorePreReleases: 'false'
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
       - name: Package release
         uses: papeloto/action-zip@v1
         with:
@@ -77,27 +69,9 @@ jobs:
           recursive: false
           dest: ${{ env.DIST_ARCHIVE_NAME }}-${{ steps.get_version.outputs.VERSION }}.zip
       - name: Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
-          body: ${{steps.build_changelog.outputs.changelog}}
           files: |
             ${{ env.DIST_ARCHIVE_NAME }}-${{ steps.get_version.outputs.VERSION }}.zip
         env:
           GITHUB_TOKEN: ${{ secrets.github_token }}
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Install uv
-        uses: astral-sh/setup-uv@v4
-        with:
-          version: "latest"
-      - name: Install dependencies
-        run: |
-          uv sync --all-extras --dev
-      - name: Build and publish
-        shell: bash
-        run: |
-          uv build
-          uv publish --token ${{ secrets.PYPI_TOKEN }}
