@@ -1,6 +1,6 @@
 [project]
 name = "d2-python"
-version = "1.1.0"
+version = "1.0.0"
 description = "An unofficial, fully typed python interface for building .d2 graph files in python."
 authors = [
     {name = "David Revay", email = "daverevay@gmail.com"},
