@@ -4,14 +4,14 @@ from enum import Enum
 from typing import List
 from typing import Optional
 
-from py_d2.connection import D2Connection
-from py_d2.helpers import add_label_and_properties
-from py_d2.helpers import flatten
-from py_d2.helpers import indent_lines
-from py_d2.style import D2Style
+from d2.connection import Connection
+from d2.helpers import add_label_and_properties
+from d2.helpers import flatten
+from d2.helpers import indent_lines
+from d2.style import Style
 
 
-class Shape(Enum):
+class ShapeType(Enum):
     rectangle = "rectangle"
     square = "square"
     page = "page"
@@ -37,7 +37,7 @@ class Shape(Enum):
     sequence_diagram = "sequence_diagram"
 
 
-class D2Text:
+class Text:
     def __init__(
         self,
         # The actual text body (multiline is fine)
@@ -59,27 +59,27 @@ class D2Text:
         return "\n".join(self.lines())
 
 
-class D2Shape:
+class Shape:
     def __init__(
         self,
         name: str,
         # The label of this shape
         label: Optional[str] = None,
         # The actual 2D shape of this shape
-        shape: Optional[Shape] = None,
+        shape: Optional[ShapeType] = None,
         # A list of child shapes (when this shape is a container)
-        shapes: Optional[List[D2Shape]] = None,
+        shapes: Optional[List[Shape]] = None,
         # The style of this shape
-        style: Optional[D2Style] = None,
+        style: Optional[Style] = None,
         # An icon for this shape
         icon: Optional[str] = None,
         # Connections for the child shapes (NOT the connections for this shape)
-        connections: Optional[List[D2Connection]] = None,
+        connections: Optional[List[Connection]] = None,
         # A shape this is near
         near: Optional[str] = None,
         # A link for a shape (when clicked)
         link: Optional[str] = None,
-        **kwargs: D2Text,
+        **kwargs: Text,
     ):
         self.name = name
         self.label = label
@@ -92,10 +92,10 @@ class D2Shape:
         self.link = link
         self.kwargs = kwargs
 
-    def add_shape(self, shape: D2Shape):
+    def add_shape(self, shape: Shape):
         self.shapes.append(shape)
 
-    def add_connection(self, connection: D2Connection):
+    def add_connection(self, connection: Connection):
         self.connections.append(connection)
 
     def lines(self) -> List[str]:

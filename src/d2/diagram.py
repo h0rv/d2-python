@@ -3,22 +3,22 @@ from __future__ import annotations
 from typing import List
 from typing import Optional
 
-from py_d2.connection import D2Connection
-from py_d2.helpers import indent
-from py_d2.helpers import indent_lines
-from py_d2.shape import D2Shape
+from d2.connection import Connection
+from d2.helpers import indent
+from d2.helpers import indent_lines
+from d2.shape import Shape
 
 
 class Layer:
     def __init__(
         self,
         name: str,
-        diagram: Optional[D2Diagram] = None,
+        diagram: Optional[Diagram] = None,
     ):
         self.name = name
-        self.diagram = diagram or D2Diagram()
+        self.diagram = diagram or Diagram()
 
-    def set_diagram(self, diagram: D2Diagram):
+    def set_diagram(self, diagram: Diagram):
         self.diagram = diagram
 
     def lines(self, depth=1) -> List[str]:
@@ -44,21 +44,21 @@ class Layer:
         return "\n".join(lines)
 
 
-class D2Diagram:
+class Diagram:
     def __init__(
         self,
-        shapes: Optional[List[D2Shape]] = None,
-        connections: Optional[List[D2Connection]] = None,
+        shapes: Optional[List[Shape]] = None,
+        connections: Optional[List[Connection]] = None,
         layers: Optional[List[Layer]] = None,
     ):
         self.shapes = shapes or []
         self.connections = connections or []
         self.layers = layers or []
 
-    def add_shape(self, shape: D2Shape):
+    def add_shape(self, shape: Shape):
         self.shapes.append(shape)
 
-    def add_connection(self, connection: D2Connection):
+    def add_connection(self, connection: Connection):
         self.connections.append(connection)
 
     def add_layer(self, layer: Layer):

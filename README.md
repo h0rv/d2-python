@@ -7,26 +7,25 @@ An unofficial, fully typed python interface for building [.d2](https://github.co
 ## Installation
 
 ```bash
-pip install py-d2
+pip install d2-python
 ```
 
 ## Usage
 
 ```python
-from py_d2 import D2Diagram, D2Shape, D2Connection, D2Style
+import d2
 
 shapes = [
-    D2Shape(name="shape_name1", style=D2Style(fill="red")),
-    D2Shape(name="shape_name2", style=D2Style(fill="blue"))]
+    d2.Shape(name="shape_name1", style=d2.Style(fill="red")),
+    d2.Shape(name="shape_name2", style=d2.Style(fill="blue"))]
 connections = [
-    D2Connection(shape_1="shape_name1", shape_2="shape_name2")
+    d2.Connection(shape_1="shape_name1", shape_2="shape_name2")
 ]
 
-diagram = D2Diagram(shapes=shapes, connections=connections)
+diagram = d2.Diagram(shapes=shapes, connections=connections)
 
 with open("graph.d2", "w", encoding="utf-8") as f:
     f.write(str(diagram))
-
 ```
 
 produces the following graph.d2 file:
@@ -104,7 +103,7 @@ following the steps below to setup the project:
 
 ```bash
 # Clone the repository
-git clone git@github.com:MrBlenny/py-d2.git && cd py-d2
+git clone git@github.com:h0rv/d2-python.git && cd d2-python
 
 # Install all dependencies
 uv sync --all-extras --dev

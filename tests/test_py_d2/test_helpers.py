@@ -1,4 +1,4 @@
-from py_d2.helpers import add_label_and_properties
+from d2.helpers import add_label_and_properties
 
 
 def test_add_label_and_properties():

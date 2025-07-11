@@ -1,4 +1,4 @@
-from py_d2.main import example
+from d2.main import example
 
 
 def test_main():
