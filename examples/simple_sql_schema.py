@@ -1,16 +1,16 @@
 import os
 import subprocess
 
-from py_d2.diagram import D2Diagram
-from py_d2.sql_table import SQLConstraint
-from py_d2.sql_table import SQLTable
-from py_d2.sql_table import create_foreign_key_connection
+from d2.diagram import Diagram
+from d2.sql_table import SQLConstraint
+from d2.sql_table import SQLTable
+from d2.sql_table import create_foreign_key_connection
 
 
 FILE_NAME = "simple_sql_schema"
 
 # Create a new diagram
-diagram = D2Diagram()
+diagram = Diagram()
 
 # Create Users table
 users = SQLTable("users")

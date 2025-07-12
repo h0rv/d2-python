@@ -10,7 +10,7 @@ class Direction(Enum):
     NONE = "--"
 
 
-class D2Connection:
+class Connection:
     def __init__(self, shape_1: str, shape_2: str, label: Optional[str] = None, direction: Direction = Direction.TO):
         self.shape_1 = shape_1
         self.shape_2 = shape_2

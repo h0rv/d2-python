@@ -1,11 +1,11 @@
-from py_d2.connection import Direction
-from py_d2.diagram import D2Diagram
-from py_d2.shape import D2Shape
-from py_d2.sql_table import SQLConstraint
-from py_d2.sql_table import SQLField
-from py_d2.sql_table import SQLTable
-from py_d2.sql_table import create_foreign_key_connection
-from py_d2.style import D2Style
+from d2.connection import Direction
+from d2.diagram import Diagram
+from d2.shape import Shape
+from d2.sql_table import SQLConstraint
+from d2.sql_table import SQLField
+from d2.sql_table import SQLTable
+from d2.sql_table import create_foreign_key_connection
+from d2.style import Style
 
 
 def test_sql_field_simple():
@@ -86,7 +86,7 @@ def test_sql_table_with_fields_dict():
 def test_sql_table_with_label_and_style():
     """Test creating a SQL table with a label and style."""
 
-    table = SQLTable("users", label="User Table", style=D2Style(fill="lightblue"))
+    table = SQLTable("users", label="User Table", style=Style(fill="lightblue"))
     table.add_field("id", "int", SQLConstraint.PRIMARY_KEY)
 
     expected = "\n".join(
@@ -137,7 +137,7 @@ def test_complex_sql_table_relationship():
     # Create connection
     fk = create_foreign_key_connection("orders", "user_id", "users", "id")
 
-    diagram = D2Diagram()
+    diagram = Diagram()
     diagram.add_shape(users)
     diagram.add_shape(orders)
     diagram.add_connection(fk)
@@ -166,7 +166,7 @@ def test_nested_sql_tables():
     """Test creating nested SQL tables within a container."""
     # Create container
 
-    cloud = D2Shape("cloud", label="Cloud Infrastructure")
+    cloud = Shape("cloud", label="Cloud Infrastructure")
 
     # Create SQL tables
     disks = SQLTable("disks")

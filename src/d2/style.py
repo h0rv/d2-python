@@ -1,14 +1,14 @@
 from typing import List
 from typing import Optional
 
-from py_d2.helpers import add_label_and_properties
+from d2.helpers import add_label_and_properties
 
 
 def stringify_bool(val: bool) -> str:
     return "true" if val else "false"
 
 
-class D2Style:
+class Style:
     def __init__(
         self,
         stroke: Optional[str] = None,

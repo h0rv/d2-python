@@ -1,50 +1,50 @@
-from py_d2.connection import D2Connection
-from py_d2.diagram import D2Diagram
-from py_d2.shape import D2Shape
-from py_d2.style import D2Style
+from d2.connection import Connection
+from d2.diagram import Diagram
+from d2.shape import Shape
+from d2.style import Style
 
 
 def test_d2_diagram():
-    diagram = D2Diagram()
+    diagram = Diagram()
     assert str(diagram) == ""
 
 
 def test_d2_diagram_one_shape():
-    diagram = D2Diagram()
-    diagram.add_shape(D2Shape(name="shape_name"))
+    diagram = Diagram()
+    diagram.add_shape(Shape(name="shape_name"))
     assert str(diagram) == "shape_name"
 
 
 def test_d2_diagram_two_shapes():
-    shapes = [D2Shape(name="shape_name1"), D2Shape(name="shape_name2")]
-    diagram = D2Diagram(shapes=shapes)
+    shapes = [Shape(name="shape_name1"), Shape(name="shape_name2")]
+    diagram = Diagram(shapes=shapes)
     assert str(diagram) == "\n".join(["shape_name1", "shape_name2"])
 
 
 def test_d2_diagram_one_connection():
-    shapes = [D2Shape(name="shape_name1"), D2Shape(name="shape_name2")]
-    connections = [D2Connection(shape_1="shape_name1", shape_2="shape_name2")]
+    shapes = [Shape(name="shape_name1"), Shape(name="shape_name2")]
+    connections = [Connection(shape_1="shape_name1", shape_2="shape_name2")]
 
-    diagram = D2Diagram(shapes=shapes, connections=connections)
+    diagram = Diagram(shapes=shapes, connections=connections)
     assert str(diagram) == "\n".join(["shape_name1", "shape_name2", "shape_name1 -> shape_name2"])
 
 
 def test_d2_diagram_one_connection_imperative_connection():
-    diagram = D2Diagram()
-    diagram.add_shape(D2Shape(name="shape_name1"))
-    diagram.add_shape(D2Shape(name="shape_name2"))
-    diagram.add_connection(D2Connection(shape_1="shape_name1", shape_2="shape_name2"))
+    diagram = Diagram()
+    diagram.add_shape(Shape(name="shape_name1"))
+    diagram.add_shape(Shape(name="shape_name2"))
+    diagram.add_connection(Connection(shape_1="shape_name1", shape_2="shape_name2"))
     assert str(diagram) == "\n".join(["shape_name1", "shape_name2", "shape_name1 -> shape_name2"])
 
 
 def test_d2_diagram_one_connection_with_style():
     shapes = [
-        D2Shape(name="shape_name1", style=D2Style(fill="red")),
-        D2Shape(name="shape_name2", style=D2Style(fill="blue")),
+        Shape(name="shape_name1", style=Style(fill="red")),
+        Shape(name="shape_name2", style=Style(fill="blue")),
     ]
-    connections = [D2Connection(shape_1="shape_name1", shape_2="shape_name2")]
+    connections = [Connection(shape_1="shape_name1", shape_2="shape_name2")]
 
-    diagram = D2Diagram(shapes=shapes, connections=connections)
+    diagram = Diagram(shapes=shapes, connections=connections)
     assert str(diagram) == "\n".join(
         [
             "shape_name1: {",

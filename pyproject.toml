@@ -1,6 +1,6 @@
 [project]
-name = "py-d2"
-version = "1.1.0"
+name = "d2-python"
+version = "1.0.0"
 description = "An unofficial, fully typed python interface for building .d2 graph files in python."
 authors = [
     {name = "David Revay", email = "daverevay@gmail.com"},
@@ -10,6 +10,7 @@ license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.8"
 keywords = [
+    "d2-python",
     "d2",
     "py-d2",
     "d2-lang",
@@ -32,12 +33,12 @@ classifiers = [
 ]
 
 [project.urls]
-Repository = "https://github.com/h0rv/py-d2"
-Documentation = "https://github.com/h0rv/py-d2/blob/main/README.md"
-"Bug Tracker" = "https://github.com/h0rv/py-d2/issues"
+Repository = "https://github.com/h0rv/d2-python"
+Documentation = "https://github.com/h0rv/d2-python/blob/main/README.md"
+"Bug Tracker" = "https://github.com/h0rv/d2-python/issues"
 
 [project.scripts]
-example = "py_d2.main:example"
+example = "d2.main:example"
 
 [project.optional-dependencies]
 dev = [
@@ -56,7 +57,8 @@ coverage = [
 [tool.uv]
 package = true
 
-[tool.uv.sources]
+[tool.uv.build-backend]
+module-name = "d2"
 
 [build-system]
 requires = ["uv_build>=0.7.19,<0.8.0"]
@@ -105,4 +107,4 @@ line-ending = "auto"
 force-single-line = true
 force-sort-within-sections = true
 lines-after-imports = 2
-known-first-party = ["py_d2"]
+known-first-party = ["d2"]

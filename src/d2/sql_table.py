@@ -7,10 +7,10 @@ from typing import List
 from typing import Optional
 from typing import Union
 
-from py_d2.connection import D2Connection
-from py_d2.connection import Direction
-from py_d2.shape import D2Shape
-from py_d2.shape import Shape
+from d2.connection import Connection
+from d2.connection import Direction
+from d2.shape import Shape
+from d2.shape import ShapeType
 
 
 class SQLConstraint(Enum):
@@ -52,7 +52,7 @@ class SQLField:
         return f"{self.name}: {self.data_type} {{constraint: {constraint_part}}}"
 
 
-class SQLTable(D2Shape):
+class SQLTable(Shape):
     def __init__(
         self,
         name: str,
@@ -66,7 +66,7 @@ class SQLTable(D2Shape):
         super().__init__(
             name=name,
             label=label,
-            shape=Shape.sql_table,
+            shape=ShapeType.sql_table,
             style=style,
             icon=icon,
             near=near,
@@ -135,7 +135,7 @@ class SQLTable(D2Shape):
             properties.extend(connection_lines)
 
         # Create the final lines
-        from py_d2.helpers import add_label_and_properties
+        from d2.helpers import add_label_and_properties
 
         lines = add_label_and_properties(self.name, self.label, properties)
 
@@ -148,8 +148,8 @@ def create_foreign_key_connection(
     target_table: str,
     target_field: str,
     label: Optional[str] = None,
-) -> D2Connection:
+) -> Connection:
     """Create a foreign key connection between two tables."""
     source = f"{source_table}.{source_field}"
     target = f"{target_table}.{target_field}"
-    return D2Connection(source, target, label, Direction.TO)
+    return Connection(source, target, label, Direction.TO)
