@@ -1,4 +1,4 @@
-# py-d2
+# d2-python
 
 ![Banner](docs/images/banner.png)
 
@@ -50,7 +50,7 @@ This can be rendered using `d2 graph.d2 graph.svg && open graph.svg` or [https:/
 
 ![example graph](/docs/images/d2.svg)
 
-See the [tests](/tests/test_py_d2) for more detailed usage examples.
+See the [tests](/tests/test_d2) for more detailed usage examples.
 
 
 ## Supported Features
