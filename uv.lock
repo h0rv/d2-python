@@ -71,11 +71,29 @@ toml = [
 ]
 
 [[package]]
+name = "d2-bin"
+version = "0.9.0"
+source = { registry = "https://pypi.org/simple" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/4a/aa/21dc6c5f8ef145809aabb89ad029ead453b8c491cc5f652292fc10d60729/d2_bin-0.9.0-py3-none-macosx_10_12_x86_64.whl", hash = "sha256:b7cea6b2022d6d7c4fe358ffd8b2be29abca389b3378346fb374f43b1f243953", size = 18094023, upload-time = "2026-10-23T14:41:56.732Z" },
+    { url = "https://files.pythonhosted.org/packages/00/3f/15fa684e26c46957dbef38a7dbdb64362fb5b6d6097ee2573d6071e7e2fb/d2_bin-0.9.0-py3-none-macosx_11_0_arm64.whl", hash = "sha256:e9a61b4f72ce46fc7c55ef681831767a3f33328416ed04f9db0382d8def68340", size = 16905960, upload-time = "2026-10-23T14:42:00.156Z" },
+    { url = "https://files.pythonhosted.org/packages/1d/96/fbeaf9163fdd6b98ed45a113d221acc1121478880e5f3e9b1666f6bd58e0/d2_bin-0.9.0-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.musllinux_1_1_aarch64.whl", hash = "sha256:ae3a6c06bee5b29ca85a6a38fdd19ac9b6b4b753958f5d290d69a7b696a24f3c", size = 16383517, upload-time = "2026-10-23T14:42:03.232Z" },
+    { url = "https://files.pythonhosted.org/packages/51/d0/23c5373d79fb21818832173be73751a29a23ebeb89e246c9f215cad55b8d/d2_bin-0.9.0-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.musllinux_1_1_x86_64.whl", hash = "sha256:bd87ecd963ce58d3c50a3be3b9931e630fc575323cf9a0c6b1c1af7bc25e2d0e", size = 17877389, upload-time = "2026-10-23T14:42:06.33Z" },
+    { url = "https://files.pythonhosted.org/packages/c3/e7/b41b55bec17c28d5ed4c520310fcc09d311397fd030bd3599deebcc7c40a/d2_bin-0.9.0-py3-none-win_amd64.whl", hash = "sha256:67e89438698da14a1a97d81f2061a3f5a281f78449073f7edb470ea7c7d8e9ac", size = 18105299, upload-time = "2026-10-23T14:42:09.453Z" },
+    { url = "https://files.pythonhosted.org/packages/b9/51/46551ba410d6919d230cdb28d96795bd58158df6a34ece340b4ed38847db/d2_bin-0.9.0-py3-none-win_arm64.whl", hash = "sha256:1d653c49aa7696013eaac6d1aa4484c8f45f0386469d698dc0ca36747dd05043", size = 16484657, upload-time = "2026-10-23T14:42:12.853Z" },
+]
+
+[[package]]
 name = "d2-python"
-version = "1.0.0"
+version = "1.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "typing-extensions", marker = "python_full_version < '3.12'" },
+]
+
+[package.optional-dependencies]
+bin = [
+    { name = "d2-bin" },
 ]
 
 [package.dev-dependencies]
@@ -87,7 +105,11 @@ dev = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "typing-extensions", marker = "python_full_version < '3.12'", specifier = ">=4.5" }]
+requires-dist = [
+    { name = "d2-bin", marker = "extra == 'bin'", specifier = "==0.9.*" },
+    { name = "typing-extensions", marker = "python_full_version < '3.12'", specifier = ">=4.5" },
+]
+provides-extras = ["bin"]
 
 [package.metadata.requires-dev]
 dev = [
