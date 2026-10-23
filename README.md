@@ -34,7 +34,7 @@ diagram = d2.Diagram(
     connections=[d2.Connection("api", "db", "reads and writes")],
 )
 
-print(diagram)                            # the D2 text
+print(diagram)  # the D2 text
 open("graph.svg", "wb").write(d2.render(diagram))
 print(d2.render(diagram, "txt").decode())  # ASCII art
 ```
@@ -87,7 +87,9 @@ db = d2.Shape(
 A shape can hold other shapes. Connect nested shapes with a dotted path:
 
 ```python
-backend = d2.Shape(name="backend", shapes=[d2.Shape(name="api"), d2.Shape(name="worker")])
+backend = d2.Shape(
+    name="backend", shapes=[d2.Shape(name="api"), d2.Shape(name="worker")]
+)
 d2.Connection("backend.api", "backend.worker")
 ```
 
