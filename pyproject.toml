@@ -36,9 +36,8 @@ classifiers = [
     "Typing :: Typed",
 ]
 
-# Enable once d2-bin 0.9.0 is on PyPI (uv lock cannot resolve it before then):
-# [project.optional-dependencies]
-# bin = ["d2-bin==0.9.*"]
+[project.optional-dependencies]
+bin = ["d2-bin==0.9.*"]
 
 [project.urls]
 Repository = "https://github.com/h0rv/d2-python"
