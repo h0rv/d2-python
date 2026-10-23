@@ -2,7 +2,7 @@ import shutil
 import subprocess
 from typing import Literal
 
-from .diagram import Diagram
+from d2.diagram import Diagram
 
 
 class D2Error(Exception):
@@ -36,7 +36,9 @@ def render(
         command += ["--theme", str(theme)]
     command += ["--stdout-format", format, "-", "-"]
 
-    result = subprocess.run(command, input=str(diagram).encode(), capture_output=True, check=False)
+    result = subprocess.run(
+        command, input=str(diagram).encode(), capture_output=True, check=False
+    )
     if result.returncode != 0:
         raise D2Error(result.stderr.decode(errors="replace"))
     return result.stdout

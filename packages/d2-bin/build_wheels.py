@@ -6,19 +6,25 @@ import argparse
 import base64
 import hashlib
 import io
-from pathlib import Path
+import sys
 import tarfile
-from typing import Literal
-from typing import NamedTuple
 import urllib.request
 import zipfile
-
+from pathlib import Path
+from typing import Literal, NamedTuple
 
 D2_VERSION = "0.9.0"
 D2_TAG = f"v{D2_VERSION}"
 RELEASE_URL = f"https://github.com/terrastruct/d2/releases/download/{D2_TAG}"
 
-Platform = Literal["linux-amd64", "linux-arm64", "macos-amd64", "macos-arm64", "windows-amd64", "windows-arm64"]
+Platform = Literal[
+    "linux-amd64",
+    "linux-arm64",
+    "macos-amd64",
+    "macos-arm64",
+    "windows-amd64",
+    "windows-arm64",
+]
 
 WHEEL_TAGS: dict[Platform, str] = {
     "linux-amd64": "manylinux_2_17_x86_64.manylinux2014_x86_64.musllinux_1_1_x86_64",
@@ -33,7 +39,15 @@ PACKAGE_DIR = Path(__file__).resolve().parent
 DIST_INFO = f"d2_bin-{D2_VERSION}.dist-info"
 DATA_DIR = f"d2_bin-{D2_VERSION}.data"
 LICENSE_FILES = ("LICENSE.txt", "THIRD_PARTY_NOTICES.txt")
-SUMMARY = "The unmodified official D2 diagram scripting language binary, packaged as a Python wheel."
+SUMMARY = (
+    "The unmodified official D2 diagram scripting language binary,"
+    " packaged as a Python wheel."
+)
+
+
+class Arguments(argparse.Namespace):
+    platforms: list[Platform]
+    out_dir: Path
 
 
 class WheelFile(NamedTuple):
@@ -49,7 +63,10 @@ def download(url: str) -> bytes:
 
 def read_checksums() -> dict[str, str]:
     lines = download(f"{RELEASE_URL}/SHA256SUMS").decode().splitlines()
-    return {name: digest for digest, name in (line.split() for line in lines if line.strip())}
+    return {
+        name: digest
+        for digest, name in (line.split() for line in lines if line.strip())
+    }
 
 
 def fetch_release(platform: Platform, checksums: dict[str, str]) -> tarfile.TarFile:
@@ -57,7 +74,9 @@ def fetch_release(platform: Platform, checksums: dict[str, str]) -> tarfile.TarF
     data = download(f"{RELEASE_URL}/{name}")
     actual = hashlib.sha256(data).hexdigest()
     if actual != checksums[name]:
-        raise ValueError(f"checksum mismatch for {name}: expected {checksums[name]}, got {actual}")
+        raise ValueError(
+            f"checksum mismatch for {name}: expected {checksums[name]}, got {actual}"
+        )
     return tarfile.open(fileobj=io.BytesIO(data), mode="r:gz")
 
 
@@ -87,7 +106,11 @@ def metadata() -> bytes:
 
 
 def wheel_file(tag: str) -> bytes:
-    lines = ["Wheel-Version: 1.0", "Generator: d2-bin build_wheels.py", "Root-Is-Purelib: false"]
+    lines = [
+        "Wheel-Version: 1.0",
+        "Generator: d2-bin build_wheels.py",
+        "Root-Is-Purelib: false",
+    ]
     lines += [f"Tag: py3-none-{part}" for part in tag.split(".")]
     return ("\n".join(lines) + "\n").encode()
 
@@ -95,7 +118,11 @@ def wheel_file(tag: str) -> bytes:
 def record(files: list[WheelFile]) -> bytes:
     rows = []
     for file in files:
-        digest = base64.urlsafe_b64encode(hashlib.sha256(file.content).digest()).rstrip(b"=").decode()
+        digest = (
+            base64.urlsafe_b64encode(hashlib.sha256(file.content).digest())
+            .rstrip(b"=")
+            .decode()
+        )
         rows.append(f"{file.path},sha256={digest},{len(file.content)}")
     rows.append(f"{DIST_INFO}/RECORD,,")
     return ("\n".join(rows) + "\n").encode()
@@ -107,12 +134,21 @@ def build_wheel(platform: Platform, checksums: dict[str, str], out_dir: Path) ->
     with fetch_release(platform, checksums) as archive:
         binary = read_member(archive, f"bin/{exe}")
         licenses = [
-            WheelFile(f"{DIST_INFO}/licenses/{name}", read_member(archive, name), 0o644) for name in LICENSE_FILES
+            WheelFile(f"{DIST_INFO}/licenses/{name}", read_member(archive, name), 0o644)
+            for name in LICENSE_FILES
         ]
 
     files = [
-        WheelFile("d2_bin/__init__.py", (PACKAGE_DIR / "src/d2_bin/__init__.py").read_bytes(), 0o644),
-        WheelFile("d2_bin/__main__.py", (PACKAGE_DIR / "src/d2_bin/__main__.py").read_bytes(), 0o644),
+        WheelFile(
+            "d2_bin/__init__.py",
+            (PACKAGE_DIR / "src/d2_bin/__init__.py").read_bytes(),
+            0o644,
+        ),
+        WheelFile(
+            "d2_bin/__main__.py",
+            (PACKAGE_DIR / "src/d2_bin/__main__.py").read_bytes(),
+            0o644,
+        ),
         WheelFile(f"{DATA_DIR}/scripts/{exe}", binary, 0o755),
         WheelFile(f"{DIST_INFO}/METADATA", metadata(), 0o644),
         WheelFile(f"{DIST_INFO}/WHEEL", wheel_file(tag), 0o644),
@@ -132,14 +168,16 @@ def build_wheel(platform: Platform, checksums: dict[str, str], out_dir: Path) ->
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Build d2-bin wheels from the official D2 release binaries.")
-    parser.add_argument("platforms", nargs="*", choices=list(WHEEL_TAGS), default=list(WHEEL_TAGS))
+    parser = argparse.ArgumentParser(
+        description="Build d2-bin wheels from the official D2 release binaries."
+    )
+    parser.add_argument("platforms", nargs="*", choices=list(WHEEL_TAGS))
     parser.add_argument("--out-dir", type=Path, default=Path("dist"))
-    args = parser.parse_args()
+    args = parser.parse_args(namespace=Arguments())
 
     checksums = read_checksums()
-    for platform in args.platforms:
-        print(build_wheel(platform, checksums, args.out_dir))
+    for platform in args.platforms or list(WHEEL_TAGS):
+        sys.stdout.write(f"{build_wheel(platform, checksums, args.out_dir)}\n")
 
 
 if __name__ == "__main__":

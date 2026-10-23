@@ -1,15 +1,26 @@
 from __future__ import annotations
 
+import sys
 from enum import Enum
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
-from d2.connection import Connection
-from d2.helpers import add_label_and_properties
-from d2.helpers import flatten
-from d2.helpers import indent_lines
-from d2.helpers import quote_label
-from d2.helpers import quote_name
-from d2.style import Style
+from d2.helpers import (
+    add_label_and_properties,
+    flatten,
+    indent_lines,
+    non_empty,
+    quote_label,
+    quote_name,
+)
+
+if TYPE_CHECKING:
+    from d2.connection import Connection
+    from d2.style import Style
+
+if sys.version_info >= (3, 12):
+    from typing import override
+else:
+    from typing_extensions import override
 
 
 LayoutDirection = Literal["up", "down", "left", "right"]
@@ -50,7 +61,7 @@ class Text:
         formatting: str,
         # The number of pipes to use
         pipes: int = 1,
-    ):
+    ) -> None:
         self.text = text
         self.formatting = formatting
         self.pipes = pipes
@@ -59,6 +70,7 @@ class Text:
         sep = "|" * self.pipes
         return [f"{sep}{self.formatting}", *self.text.split("\n"), sep]
 
+    @override
     def __repr__(self) -> str:
         return "\n".join(self.lines())
 
@@ -93,7 +105,7 @@ class Shape:
         direction: LayoutDirection | None = None,
         classes: list[str] | None = None,
         **kwargs: Text,
-    ):
+    ) -> None:
         self.name = name
         self.label = label
         self.shape = shape
@@ -113,40 +125,17 @@ class Shape:
         self.classes = classes or []
         self.kwargs = kwargs
 
-    def add_shape(self, shape: Shape):
+    def add_shape(self, shape: Shape) -> None:
         self.shapes.append(shape)
 
-    def add_connection(self, connection: Connection):
+    def add_connection(self, connection: Connection) -> None:
         self.connections.append(connection)
 
     def member_lines(self) -> list[str]:
         return []
 
-    def lines(self) -> list[str]:
-        shapes = flatten([shape.lines() for shape in self.shapes])
-        connections = flatten([connection.lines() for connection in self.connections])
-        properties = shapes + connections
-
-        if self.shape:
-            properties.append(f"shape: {self.shape.value}")
-
-        properties += self.member_lines()
-
-        if self.near:
-            properties.append(f"near: {self.near}")
-
-        if self.link:
-            properties.append(f"link: {self.link}")
-
-        if self.style:
-            properties += self.style.lines()
-
-        if self.icon:
-            properties.append(f"icon: {self.icon}")
-
-        if self.tooltip:
-            properties.append(f"tooltip: {quote_label(self.tooltip)}")
-
+    def attribute_lines(self) -> list[str]:
+        properties: list[str] = []
         for key, value in (
             ("width", self.width),
             ("height", self.height),
@@ -160,7 +149,37 @@ class Shape:
 
         if self.classes:
             names = [quote_name(name) for name in self.classes]
-            properties.append(f"class: {names[0] if len(names) == 1 else '[' + '; '.join(names) + ']'}")
+            joined = names[0] if len(names) == 1 else f"[{'; '.join(names)}]"
+            properties.append(f"class: {joined}")
+
+        return properties
+
+    def lines(self) -> list[str]:
+        shapes = flatten([shape.lines() for shape in self.shapes])
+        connections = flatten([connection.lines() for connection in self.connections])
+        properties = shapes + connections
+
+        if self.shape is not None:
+            properties.append(f"shape: {self.shape.value}")
+
+        properties += self.member_lines()
+
+        if (near := non_empty(self.near)) is not None:
+            properties.append(f"near: {near}")
+
+        if (link := non_empty(self.link)) is not None:
+            properties.append(f"link: {link}")
+
+        if self.style is not None:
+            properties += self.style.lines()
+
+        if (icon := non_empty(self.icon)) is not None:
+            properties.append(f"icon: {icon}")
+
+        if (tooltip := non_empty(self.tooltip)) is not None:
+            properties.append(f"tooltip: {quote_label(tooltip)}")
+
+        properties += self.attribute_lines()
 
         for key, value in self.kwargs.items():
             other_property = value.lines()
@@ -173,10 +192,9 @@ class Shape:
                 other_property_line_end,
             ]
 
-        lines = add_label_and_properties(quote_name(self.name), self.label, properties)
+        return add_label_and_properties(quote_name(self.name), self.label, properties)
 
-        return lines
-
+    @override
     def __repr__(self) -> str:
         lines = self.lines()
         return "\n".join(lines)

@@ -1,95 +1,99 @@
 from d2.connection import Connection
-from d2.shape import Shape
-from d2.shape import ShapeType
-from d2.shape import Text
+from d2.shape import Shape, ShapeType, Text
 from d2.style import Style
 
 
-def test_d2_shape():
+def test_d2_shape() -> None:
     shape = Shape(name="shape_name")
     assert str(shape) == "shape_name"
 
 
-def test_d2_shape_label():
+def test_d2_shape_label() -> None:
     shape = Shape(name="shape_name", label="shape_label")
     assert str(shape) == "shape_name: shape_label"
 
 
-def test_d2_shape_empty_label():
+def test_d2_shape_empty_label() -> None:
     shape = Shape(name="shape_name", label="")
     assert str(shape) == 'shape_name: ""'
 
 
-def test_d2_shape_style():
+def test_d2_shape_style() -> None:
     shape = Shape(name="shape_name", style=Style(fill="red"))
     assert str(shape) == "shape_name: {\n  style: {\n    fill: red\n  }\n}"
 
 
-def test_d2_shape_container():
+def test_d2_shape_container() -> None:
     shape = Shape(name="shape_name", label="container_label")
     shape.add_shape(Shape(name="shape_1"))
     shape.add_shape(Shape(name="shape_2"))
     shape.add_connection(Connection(shape_1="shape_1", shape_2="shape_2"))
-    assert str(shape) == "\n".join(
-        ["shape_name: container_label {", "  shape_1", "  shape_2", "  shape_1 -> shape_2", "}"]
-    )
+    expected_lines = [
+        "shape_name: container_label {",
+        "  shape_1",
+        "  shape_2",
+        "  shape_1 -> shape_2",
+        "}",
+    ]
+    assert str(shape) == "\n".join(expected_lines)
 
 
-def test_d2_shape_container_style():
+def test_d2_shape_container_style() -> None:
     shape = Shape(name="shape_name", label="container_label")
     shape.add_shape(Shape(name="shape_1", style=Style(fill="red")))
     shape.add_shape(Shape(name="shape_2"))
     shape.add_connection(Connection(shape_1="shape_1", shape_2="shape_2"))
 
-    assert str(shape) == "\n".join(
-        [
-            "shape_name: container_label {",
-            "  shape_1: {",
-            "    style: {",
-            "      fill: red",
-            "    }",
-            "  }",
-            "  shape_2",
-            "  shape_1 -> shape_2",
-            "}",
-        ]
-    )
+    expected_lines = [
+        "shape_name: container_label {",
+        "  shape_1: {",
+        "    style: {",
+        "      fill: red",
+        "    }",
+        "  }",
+        "  shape_2",
+        "  shape_1 -> shape_2",
+        "}",
+    ]
+    assert str(shape) == "\n".join(expected_lines)
 
 
-def test_d2_shape_container_in_container_with_shapes():
+def test_d2_shape_container_in_container_with_shapes() -> None:
     shape = Shape(name="shape_name", label="container_label")
     shape.add_shape(
         Shape(
             name="shape_1",
             style=Style(fill="red"),
-            shapes=[Shape(name="shape_2", style=Style(fill="blue")), Shape(name="shape_3")],
+            shapes=[
+                Shape(name="shape_2", style=Style(fill="blue")),
+                Shape(name="shape_3"),
+            ],
             connections=[Connection(shape_1="shape_2", shape_2="shape_3")],
         )
     )
     shape.add_shape(Shape(name="shape_4"))
 
-    assert str(shape) == "\n".join(
-        [
-            "shape_name: container_label {",
-            "  shape_1: {",
-            "    shape_2: {",
-            "      style: {",
-            "        fill: blue",
-            "      }",
-            "    }",
-            "    shape_3",
-            "    shape_2 -> shape_3",
-            "    style: {",
-            "      fill: red",
-            "    }",
-            "  }",
-            "  shape_4",
-            "}",
-        ]
-    )
+    expected_lines = [
+        "shape_name: container_label {",
+        "  shape_1: {",
+        "    shape_2: {",
+        "      style: {",
+        "        fill: blue",
+        "      }",
+        "    }",
+        "    shape_3",
+        "    shape_2 -> shape_3",
+        "    style: {",
+        "      fill: red",
+        "    }",
+        "  }",
+        "  shape_4",
+        "}",
+    ]
+    assert str(shape) == "\n".join(expected_lines)
 
 
-def test_d2_shape_shapes():
+def test_d2_shape_shapes() -> None:
     shape_rectangle = Shape(name="shape_name", shape=ShapeType.rectangle)
     shape_rectangle = Shape(name="shape_name", shape=ShapeType.rectangle)
     shape_square = Shape(name="shape_name", shape=ShapeType.square)
@@ -141,114 +145,129 @@ def test_d2_shape_shapes():
     assert str(shape_sequence_diagram) == "shape_name: {\n  shape: sequence_diagram\n}"
 
 
-def test_d2_shape_icon():
-    shape = Shape(name="shape_name", icon="https://icons.terrastruct.com/essentials%2F117-database.svg")
-    assert str(shape) == "shape_name: {\n  icon: https://icons.terrastruct.com/essentials%2F117-database.svg\n}"
+def test_d2_shape_icon() -> None:
+    shape = Shape(
+        name="shape_name",
+        icon="https://icons.terrastruct.com/essentials%2F117-database.svg",
+    )
+    assert (
+        str(shape)
+        == "shape_name: {\n  icon: https://icons.terrastruct.com/essentials%2F117-database.svg\n}"
+    )
 
 
-def test_d2_shape_near():
+def test_d2_shape_near() -> None:
     shape = Shape(name="shape_name", near="some_other_shape")
     assert str(shape) == "shape_name: {\n  near: some_other_shape\n}"
 
 
-def test_d2_shape_link():
+def test_d2_shape_link() -> None:
     shape = Shape(name="shape_name", link="https://github.com/MrBlenny/py-d2")
     assert str(shape) == "shape_name: {\n  link: https://github.com/MrBlenny/py-d2\n}"
 
 
-def test_d2_shape_other_properties():
+def test_d2_shape_other_properties() -> None:
     text = "Some text"
     shape = Shape(name="shape_name", thing=Text(text=text, formatting="md"))
-    assert str(shape) == "\n".join(["shape_name: {", "  thing: |md", "    Some text", "  |", "}"])
+    expected_lines = ["shape_name: {", "  thing: |md", "    Some text", "  |", "}"]
+    assert str(shape) == "\n".join(expected_lines)
 
 
-def test_d2_shape_other_properties_multi_line():
-    text = "\n".join(["multiline text", "like this", "works too"])
+def test_d2_shape_other_properties_multi_line() -> None:
+    text_lines = ["multiline text", "like this", "works too"]
+    text = "\n".join(text_lines)
     shape = Shape(name="shape_name", thing=Text(text=text, formatting="md"))
-    assert str(shape) == "\n".join(
-        ["shape_name: {", "  thing: |md", "    multiline text", "    like this", "    works too", "  |", "}"]
-    )
+    expected_lines = [
+        "shape_name: {",
+        "  thing: |md",
+        "    multiline text",
+        "    like this",
+        "    works too",
+        "  |",
+        "}",
+    ]
+    assert str(shape) == "\n".join(expected_lines)
 
 
-def test_d2_shape_other_properties_can_be_anything():
-    text = "\n".join(["multiline text", "like this", "works too"])
+def test_d2_shape_other_properties_can_be_anything() -> None:
+    text_lines = ["multiline text", "like this", "works too"]
+    text = "\n".join(text_lines)
     shape = Shape(
         name="shape_name",
         description=Text(text=text, formatting="md"),
         other_thing=Text(text=text, formatting="md"),
     )
-    assert str(shape) == "\n".join(
-        [
-            "shape_name: {",
-            "  description: |md",
-            "    multiline text",
-            "    like this",
-            "    works too",
-            "  |",
-            "  other_thing: |md",
-            "    multiline text",
-            "    like this",
-            "    works too",
-            "  |",
-            "}",
-        ]
-    )
+    expected_lines = [
+        "shape_name: {",
+        "  description: |md",
+        "    multiline text",
+        "    like this",
+        "    works too",
+        "  |",
+        "  other_thing: |md",
+        "    multiline text",
+        "    like this",
+        "    works too",
+        "  |",
+        "}",
+    ]
+    assert str(shape) == "\n".join(expected_lines)
 
 
-def test_d2_shape_text_can_specify_pipe_count():
+def test_d2_shape_text_can_specify_pipe_count() -> None:
     text = "const iLoveTypescript = 1 || true;\nconst really = () => iLoveTypescript"
     shape = Shape(name="shape_name", code=Text(text=text, formatting="ts", pipes=3))
-    assert str(shape) == "\n".join(
-        [
-            "shape_name: {",
-            "  code: |||ts",
-            "    const iLoveTypescript = 1 || true;",
-            "    const really = () => iLoveTypescript",
-            "  |||",
-            "}",
-        ]
-    )
+    expected_lines = [
+        "shape_name: {",
+        "  code: |||ts",
+        "    const iLoveTypescript = 1 || true;",
+        "    const really = () => iLoveTypescript",
+        "  |||",
+        "}",
+    ]
+    assert str(shape) == "\n".join(expected_lines)
 
 
-def test_d2_shape_name_is_quoted_when_needed():
+def test_d2_shape_name_is_quoted_when_needed() -> None:
     assert str(Shape(name="a.b")) == '"a.b"'
     assert str(Shape(name="shape")) == '"shape"'
     assert str(Shape(name="a:b", label="x")) == '"a:b": x'
 
 
-def test_d2_shape_label_is_quoted_when_needed():
+def test_d2_shape_label_is_quoted_when_needed() -> None:
     assert str(Shape(name="a", label="x: y")) == 'a: "x: y"'
     assert str(Shape(name="a", label='say "hi"\nnow')) == 'a: "say \\"hi\\"\\nnow"'
 
 
-def test_d2_shape_plain_names_stay_bare():
+def test_d2_shape_plain_names_stay_bare() -> None:
     assert str(Shape(name="my shape", label="hello world")) == "my shape: hello world"
 
 
-def test_d2_shape_tooltip():
+def test_d2_shape_tooltip() -> None:
     assert str(Shape(name="a", tooltip="some tip")) == "a: {\n  tooltip: some tip\n}"
 
 
-def test_d2_shape_size_and_grid():
-    shape = Shape(name="a", width=200, height=100, grid_rows=2, grid_columns=3, grid_gap=0)
-    assert str(shape) == "\n".join(
-        [
-            "a: {",
-            "  width: 200",
-            "  height: 100",
-            "  grid-rows: 2",
-            "  grid-columns: 3",
-            "  grid-gap: 0",
-            "}",
-        ]
+def test_d2_shape_size_and_grid() -> None:
+    shape = Shape(
+        name="a", width=200, height=100, grid_rows=2, grid_columns=3, grid_gap=0
     )
+    expected_lines = [
+        "a: {",
+        "  width: 200",
+        "  height: 100",
+        "  grid-rows: 2",
+        "  grid-columns: 3",
+        "  grid-gap: 0",
+        "}",
+    ]
+    assert str(shape) == "\n".join(expected_lines)
 
 
-def test_d2_shape_direction():
+def test_d2_shape_direction() -> None:
     shape = Shape(name="a", direction="right", shapes=[Shape(name="b")])
     assert str(shape) == "a: {\n  b\n  direction: right\n}"
 
 
-def test_d2_shape_classes():
+def test_d2_shape_classes() -> None:
     assert str(Shape(name="a", classes=["x"])) == "a: {\n  class: x\n}"
     assert str(Shape(name="a", classes=["x", "y"])) == "a: {\n  class: [x; y]\n}"

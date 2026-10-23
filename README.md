@@ -120,7 +120,9 @@ diagram = d2.Diagram(
     classes={"hot": d2.Style(fill="orange", bold=True)},
     shapes=[
         d2.Shape(name="api", tooltip="Public API", width=200, classes=["hot"]),
-        d2.Shape(name="grid", grid_columns=2, shapes=[d2.Shape(name="a"), d2.Shape(name="b")]),
+        d2.Shape(
+            name="grid", grid_columns=2, shapes=[d2.Shape(name="a"), d2.Shape(name="b")]
+        ),
         d2.ClassShape(
             "Animal",
             fields=[d2.ClassField("name", "string", "+")],
@@ -137,8 +139,12 @@ diagram = d2.Diagram(
             tooltip="HTTP",
         )
     ],
-    scenarios=[d2.Layer(name="degraded", diagram=d2.Diagram(shapes=[d2.Shape(name="api")]))],
-    steps=[d2.Layer(name="step_one", diagram=d2.Diagram(shapes=[d2.Shape(name="api")]))],
+    scenarios=[
+        d2.Layer(name="degraded", diagram=d2.Diagram(shapes=[d2.Shape(name="api")]))
+    ],
+    steps=[
+        d2.Layer(name="step_one", diagram=d2.Diagram(shapes=[d2.Shape(name="api")]))
+    ],
 )
 ```
 

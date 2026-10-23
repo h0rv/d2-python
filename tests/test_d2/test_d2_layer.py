@@ -1,16 +1,15 @@
 from d2.connection import Connection
-from d2.diagram import Diagram
-from d2.diagram import Layer
+from d2.diagram import Diagram, Layer
 
 
-def test_d2_layer():
+def test_d2_layer() -> None:
     layer = Layer(name="my_layer")
     diagram = Diagram(layers=[layer])
     assert str(diagram) == ""
 
 
-def test_d2_layer_single_subdiagram():
-    """Test a root diagram with a connection and a single layer containing its own connection."""
+def test_d2_layer_single_subdiagram() -> None:
+    """Test a root diagram and a single layer, each with its own connection."""
     root_connection = Connection(shape_1="x", shape_2="y")
 
     layer_connection = Connection(shape_1="1", shape_2="2")
@@ -25,7 +24,7 @@ def test_d2_layer_single_subdiagram():
     assert str(root_diagram) == expected_output
 
 
-def test_d2_layer_two_layers_depth_1():
+def test_d2_layer_two_layers_depth_1() -> None:
     """Test diagram with two layers at depth 1"""
     connection1 = Connection(shape_1="a", shape_2="b")
     layer1_diagram = Diagram(connections=[connection1])
@@ -36,11 +35,13 @@ def test_d2_layer_two_layers_depth_1():
     layer2 = Layer(name="layer2", diagram=layer2_diagram)
 
     root_diagram = Diagram(layers=[layer1, layer2])
-    expected_output = "layers: {\n  layer1: {\n    a -> b\n  }\n  layer2: {\n    c -> d\n  }\n}"
+    expected_output = (
+        "layers: {\n  layer1: {\n    a -> b\n  }\n  layer2: {\n    c -> d\n  }\n}"
+    )
     assert str(root_diagram) == expected_output
 
 
-def test_d2_layer_nested_layer_depth_2():
+def test_d2_layer_nested_layer_depth_2() -> None:
     """Test diagram with a layer nested inside another layer (depth 2)"""
     inner_connection = Connection(shape_1="e", shape_2="f")
     inner_diagram = Diagram(connections=[inner_connection])

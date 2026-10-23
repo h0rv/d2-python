@@ -1,11 +1,8 @@
-import os
-import subprocess
+from pathlib import Path
 
+from d2 import D2Error, render
 from d2.diagram import Diagram
-from d2.sql_table import SQLConstraint
-from d2.sql_table import SQLTable
-from d2.sql_table import create_foreign_key_connection
-
+from d2.sql_table import SQLConstraint, SQLTable, create_foreign_key_connection
 
 FILE_NAME = "simple_sql_schema"
 
@@ -32,14 +29,15 @@ diagram.add_shape(orders)
 diagram.add_connection(fk)
 
 # Write the diagram to a file
-with open(f"{FILE_NAME}.d2", "w") as f:
-    f.write(str(diagram))
+d2_path = Path(f"{FILE_NAME}.d2")
+d2_path.write_text(str(diagram), encoding="utf-8")
 
-print(f"D2 diagram file created: {FILE_NAME}.d2")
+print(f"D2 diagram file created: {d2_path}")
 print(str(diagram))
 
 try:
-    subprocess.run(["d2", "--layout", "elk", f"{FILE_NAME}.d2", f"{FILE_NAME}.svg"], check=True)
-    print(f"SVG diagram generated: {os.path.abspath(f'{FILE_NAME}.svg')}")
-except Exception as e:
+    svg_path = Path(f"{FILE_NAME}.svg")
+    svg_path.write_bytes(render(diagram, layout="elk"))
+    print(f"SVG diagram generated: {svg_path.resolve()}")
+except (D2Error, FileNotFoundError) as e:
     print(f"Error generating SVG: {e}")

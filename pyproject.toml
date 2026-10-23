@@ -10,6 +10,9 @@ license = "MIT"
 license-files = ["LICENSE"]
 readme = "README.md"
 requires-python = ">=3.11"
+dependencies = [
+    "typing-extensions>=4.5; python_version < '3.12'",
+]
 keywords = [
     "d2-python",
     "d2",
@@ -64,11 +67,7 @@ build-backend = "uv_build"
 extra-paths = ["packages/d2-bin/src"]
 
 [tool.pytest.ini_options]
-minversion = "6.0"
-addopts = "-ra"
 testpaths = ["tests"]
-pythonpath = ["tests"]
-norecursedirs = ["tests/_cache"]
 
 [tool.ruff.lint]
 select = ["ALL"]
@@ -85,7 +84,21 @@ ignore = [
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["S101", "PLR2004"]
 "examples/**" = ["INP001", "T201"]
-"packages/d2-bin/build_wheels.py" = ["INP001", "T201"]
+"packages/d2-bin/build_wheels.py" = [
+    "INP001", # standalone script, not a package
+    "S310",   # downloads fixed https release URLs
+]
+"packages/d2-bin/src/d2_bin/__main__.py" = [
+    "S603", # runs the resolved d2 binary
+    "S606", # execs the resolved d2 binary
+]
+"src/d2/_render.py" = [
+    "A002",    # public `format` parameter
+    "PLC0415", # d2_bin is an optional dependency imported on use
+    "S603",    # runs the resolved d2 binary
+]
+"src/d2/diagram.py" = ["A002"] # public `vars` parameter
+"src/d2/style.py" = ["FBT001"] # public positional bool parameters
 
 [tool.ty.rules]
 all = "error"

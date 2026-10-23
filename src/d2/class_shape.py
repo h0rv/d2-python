@@ -1,19 +1,26 @@
 from __future__ import annotations
 
+import sys
 from dataclasses import dataclass
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
 from d2.helpers import quote
-from d2.shape import Shape
-from d2.shape import ShapeType
-from d2.style import Style
+from d2.shape import Shape, ShapeType
+
+if TYPE_CHECKING:
+    from d2.style import Style
+
+if sys.version_info >= (3, 12):
+    from typing import override
+else:
+    from typing_extensions import override
 
 
 Visibility = Literal["+", "-", "#"]
 
 
 def member_line(name: str, visibility: Visibility | None, type_: str | None) -> str:
-    key = f"{visibility or ''}{name}"
+    key = name if visibility is None else f"{visibility}{name}"
     if visibility == "#":
         key = quote(key)
     return key if type_ is None else f"{key}: {quote(type_)}"
@@ -37,7 +44,11 @@ class ClassMethod:
     visibility: Visibility | None = None
 
     def lines(self) -> list[str]:
-        return [member_line(f"{self.name}({self.parameters})", self.visibility, self.return_type)]
+        return [
+            member_line(
+                f"{self.name}({self.parameters})", self.visibility, self.return_type
+            )
+        ]
 
 
 class ClassShape(Shape):
@@ -51,7 +62,7 @@ class ClassShape(Shape):
         icon: str | None = None,
         near: str | None = None,
         link: str | None = None,
-    ):
+    ) -> None:
         super().__init__(
             name=name,
             label=label,
@@ -64,11 +75,14 @@ class ClassShape(Shape):
         self.fields = fields or []
         self.methods = methods or []
 
-    def add_field(self, field: ClassField):
+    def add_field(self, field: ClassField) -> None:
         self.fields.append(field)
 
-    def add_method(self, method: ClassMethod):
+    def add_method(self, method: ClassMethod) -> None:
         self.methods.append(method)
 
+    @override
     def member_lines(self) -> list[str]:
-        return [line for member in (*self.fields, *self.methods) for line in member.lines()]
+        return [
+            line for member in (*self.fields, *self.methods) for line in member.lines()
+        ]
