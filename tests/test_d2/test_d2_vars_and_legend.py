@@ -26,8 +26,6 @@ def test_diagram__variables_follow_config() -> None:
         "  d2-config: {",
         "    sketch: true",
         "  }",
-        "}",
-        "vars: {",
         "  x: 1",
         "}",
     ]
@@ -37,17 +35,27 @@ def test_diagram__legend() -> None:
     diagram = d2.Diagram(
         legend=d2.Legend(
             label="Key",
-            near="bottom-center",
             shapes=[d2.Shape(name="k", label="Service")],
-            connections=[d2.Connection("k", "k", "calls")],
+            connections=[d2.Connection("a", "b", "calls")],
         )
     )
 
     assert str(diagram).split("\n") == [
-        "legend: Key {",
-        "  near: bottom-center",
-        "  k: Service",
-        "  k -> k: calls",
+        "vars: {",
+        "  d2-legend: Key {",
+        "    k: Service",
+        '    a: "" {',
+        "      style: {",
+        "        opacity: 0",
+        "      }",
+        "    }",
+        '    b: "" {',
+        "      style: {",
+        "        opacity: 0",
+        "      }",
+        "    }",
+        "    a -> b: calls",
+        "  }",
         "}",
     ]
 
@@ -55,4 +63,24 @@ def test_diagram__legend() -> None:
 def test_diagram__legend_without_label() -> None:
     diagram = d2.Diagram(legend=d2.Legend(shapes=[d2.Shape(name="k")]))
 
-    assert str(diagram) == "legend: {\n  k\n}"
+    assert str(diagram) == "vars: {\n  d2-legend: {\n    k\n  }\n}"
+
+
+def test_diagram__one_vars_block() -> None:
+    diagram = d2.Diagram(
+        vars=d2.Config(layout_engine="tala"),
+        variables={"x": 1},
+        legend=d2.Legend(shapes=[d2.Shape(name="k")]),
+    )
+
+    assert str(diagram).split("\n") == [
+        "vars: {",
+        "  d2-config: {",
+        "    layout-engine: tala",
+        "  }",
+        "  x: 1",
+        "  d2-legend: {",
+        "    k",
+        "  }",
+        "}",
+    ]

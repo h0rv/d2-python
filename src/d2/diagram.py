@@ -21,7 +21,7 @@ if TYPE_CHECKING:
     from collections.abc import Mapping
 
     from d2.connection import Connection
-    from d2.shape import LayoutDirection, NearPosition, Shape
+    from d2.shape import LayoutDirection, Shape
     from d2.style import Style
 
 if sys.version_info >= (3, 12):
@@ -47,20 +47,11 @@ class Config:
         bounded("dark_theme_id", self.dark_theme_id, 0)
 
     def statements(self) -> tuple[Field, ...]:
-        entries: tuple[tuple[str, Value | None], ...] = (
-            ("layout-engine", Keyword.of(self.layout_engine)),
-            ("theme-id", self.theme_id),
-            ("dark-theme-id", self.dark_theme_id),
-            ("pad", self.pad),
-            ("sketch", self.sketch),
-            ("center", self.center),
-        )
-        config = properties(entries)
-        if not config:
-            return ()
-        return (
-            Field(Keyword("vars"), body=(Field(Keyword("d2-config"), body=config),)),
-        )
+        return vars_block(self.fields())
+
+    def fields(self) -> tuple[Field, ...]:
+        config = properties(entries_of(self))
+        return (Field(Keyword("d2-config"), body=config),) if config else ()
 
     def lines(self) -> list[str]:
         return emit(self.statements())
@@ -69,20 +60,53 @@ class Config:
 VarValue = str | int | float | bool
 
 
+def vars_block(fields: tuple[Field, ...]) -> tuple[Field, ...]:
+    return (Field(Keyword("vars"), body=fields),) if fields else ()
+
+
+def entries_of(config: Config) -> tuple[tuple[str, Value | None], ...]:
+    return (
+        ("layout-engine", Keyword.of(config.layout_engine)),
+        ("theme-id", config.theme_id),
+        ("dark-theme-id", config.dark_theme_id),
+        ("pad", config.pad),
+        ("sketch", config.sketch),
+        ("center", config.center),
+    )
+
+
+HIDDEN = Field(Keyword("style"), body=(Field(Keyword("opacity"), 0),))
+
+
 @dataclass(frozen=True, kw_only=True)
 class Legend:
+    """D2's legend, drawn as a key next to the diagram.
+
+    Connection endpoints that are not legend shapes are hidden, so an entry
+    for a connection shows only its line and label.
+    """
+
     shapes: list[Shape] = field(default_factory=list)
     connections: list[Connection] = field(default_factory=list)
     label: str | None = None
-    near: NearPosition | None = None
 
-    def statements(self) -> tuple[Field, ...]:
+    def fields(self) -> tuple[Field, ...]:
+        declared = {shape.name for shape in self.shapes}
+        endpoints = dict.fromkeys(
+            end
+            for connection in self.connections
+            for end in (connection.shape_1, connection.shape_2)
+            if end not in declared
+        )
         body: tuple[Statement, ...] = (
-            *properties((("near", Keyword.of(self.near)),)),
             *(s for shape in self.shapes for s in shape.statements()),
+            *(Field(Key(end), Label(""), (HIDDEN,)) for end in endpoints),
             *(s for connection in self.connections for s in connection.statements()),
         )
-        return (Field(Keyword("legend"), Label.of(self.label), body),)
+        return (Field(Keyword("d2-legend"), Label.of(self.label), body),)
+
+    def statements(self) -> tuple[Field, ...]:
+        return vars_block(self.fields())
 
     def lines(self) -> list[str]:
         return emit(self.statements())
@@ -176,23 +200,26 @@ class Diagram:
         )
         return (Field(Keyword("classes"), body=body),) if body else ()
 
-    def variable_statements(self) -> tuple[Field, ...]:
-        body = tuple(
+    def variable_fields(self) -> tuple[Field, ...]:
+        return tuple(
             Field(Key(name), Label(value) if isinstance(value, str) else value)
             for name, value in self.variables.items()
         )
-        return (Field(Keyword("vars"), body=body),) if body else ()
 
     def statements(self) -> tuple[Statement, ...]:
         return (
             *(Comment(comment) for comment in self.comments),
-            *(self.vars.statements() if self.vars is not None else ()),
-            *self.variable_statements(),
+            *vars_block(
+                (
+                    *(self.vars.fields() if self.vars is not None else ()),
+                    *self.variable_fields(),
+                    *(self.legend.fields() if self.legend is not None else ()),
+                )
+            ),
             *properties((("direction", Keyword.of(self.direction)),)),
             *self.class_statements(),
             *(s for shape in self.shapes for s in shape.statements()),
             *(s for connection in self.connections for s in connection.statements()),
-            *(self.legend.statements() if self.legend is not None else ()),
             *boards("layers", self.layers),
             *boards("scenarios", self.scenarios),
             *boards("steps", self.steps),
