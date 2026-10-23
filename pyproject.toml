@@ -1,7 +1,7 @@
 [project]
 name = "d2-python"
 version = "1.1.0"
-description = "An unofficial, fully typed python interface for building .d2 graph files in python."
+description = "Build D2 diagrams with Python code."
 authors = [
     {name = "David Revay", email = "daverevay@gmail.com"},
     {name = "Robby", email = "h0rv@users.noreply.github.com"}
@@ -83,6 +83,7 @@ ignore = [
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["S101", "PLR2004"]
 "examples/**" = ["INP001", "T201"]
+"docs/banner.py" = ["INP001"] # standalone script, not a package
 "packages/d2-bin/build_wheels.py" = [
     "INP001", # standalone script, not a package
     "S310",   # downloads fixed https release URLs
