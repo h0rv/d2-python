@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Literal, NamedTuple
 
 D2_VERSION = "0.9.0"
+WHEEL_VERSION = "0.9.0.post1"
 D2_TAG = f"v{D2_VERSION}"
 RELEASE_URL = f"https://github.com/terrastruct/d2/releases/download/{D2_TAG}"
 
@@ -36,9 +37,9 @@ WHEEL_TAGS: dict[Platform, str] = {
 }
 
 PACKAGE_DIR = Path(__file__).resolve().parent
-DIST_INFO = f"d2_bin-{D2_VERSION}.dist-info"
+DIST_INFO = f"d2_bin-{WHEEL_VERSION}.dist-info"
 ENTRY_POINTS = b"[console_scripts]\nd2-bin = d2_bin.__main__:main\n"
-DATA_DIR = f"d2_bin-{D2_VERSION}.data"
+DATA_DIR = f"d2_bin-{WHEEL_VERSION}.data"
 LICENSE_FILES = ("LICENSE.txt", "THIRD_PARTY_NOTICES.txt")
 SUMMARY = (
     "The unmodified official D2 diagram scripting language binary,"
@@ -93,7 +94,7 @@ def metadata() -> bytes:
     headers = [
         "Metadata-Version: 2.4",
         "Name: d2-bin",
-        f"Version: {D2_VERSION}",
+        f"Version: {WHEEL_VERSION}",
         f"Summary: {SUMMARY}",
         "Description-Content-Type: text/markdown",
         "License-Expression: MPL-2.0",
@@ -159,7 +160,7 @@ def build_wheel(platform: Platform, checksums: dict[str, str], out_dir: Path) ->
     files.append(WheelFile(f"{DIST_INFO}/RECORD", record(files), 0o644))
 
     out_dir.mkdir(parents=True, exist_ok=True)
-    wheel_path = out_dir / f"d2_bin-{D2_VERSION}-py3-none-{tag}.whl"
+    wheel_path = out_dir / f"d2_bin-{WHEEL_VERSION}-py3-none-{tag}.whl"
     with zipfile.ZipFile(wheel_path, "w", zipfile.ZIP_DEFLATED) as wheel:
         for file in files:
             info = zipfile.ZipInfo(file.path, date_time=(2020, 1, 1, 0, 0, 0))
