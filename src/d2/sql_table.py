@@ -5,6 +5,7 @@ from typing import Any
 
 from d2.connection import Connection
 from d2.connection import Direction
+from d2.helpers import quote_name
 from d2.shape import Shape
 from d2.shape import ShapeType
 
@@ -133,7 +134,7 @@ class SQLTable(Shape):
         # Create the final lines
         from d2.helpers import add_label_and_properties
 
-        lines = add_label_and_properties(self.name, self.label, properties)
+        lines = add_label_and_properties(quote_name(self.name), self.label, properties)
 
         return lines
 

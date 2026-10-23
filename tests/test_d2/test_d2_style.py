@@ -83,3 +83,52 @@ def test_d2_style_all():
             "}",
         ]
     )
+
+
+def test_d2_style_falsy_values_are_emitted():
+    style = Style(stroke_width=0, shadow=False, opacity=0, stroke_dash=0, three_d=False)
+    assert str(style) == "\n".join(
+        [
+            "style: {",
+            "  stroke-width: 0",
+            "  shadow: false",
+            "  opacity: 0",
+            "  stroke-dash: 0",
+            "  3d: false",
+            "}",
+        ]
+    )
+
+
+def test_d2_style_unset_values_are_omitted():
+    assert str(Style(shadow=None, opacity=None, stroke_width=None)) == ""
+
+
+def test_d2_style_text_options():
+    style = Style(font="mono", font_size=20, bold=True, italic=False, underline=True, text_transform="uppercase")
+    assert str(style) == "\n".join(
+        [
+            "style: {",
+            "  font: mono",
+            "  font-size: 20",
+            "  bold: true",
+            "  italic: false",
+            "  underline: true",
+            "  text-transform: uppercase",
+            "}",
+        ]
+    )
+
+
+def test_d2_style_shape_options():
+    style = Style(animated=True, double_border=True, multiple=False, fill_pattern="dots")
+    assert str(style) == "\n".join(
+        [
+            "style: {",
+            "  animated: true",
+            "  double-border: true",
+            "  multiple: false",
+            "  fill-pattern: dots",
+            "}",
+        ]
+    )

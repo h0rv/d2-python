@@ -1,3 +1,59 @@
+import re
+
+
+RESERVED_KEYWORDS = frozenset(
+    {
+        "shape",
+        "style",
+        "label",
+        "near",
+        "layers",
+        "scenarios",
+        "steps",
+        "vars",
+        "classes",
+        "class",
+        "direction",
+        "icon",
+        "link",
+        "tooltip",
+        "width",
+        "height",
+        "constraint",
+        "grid-rows",
+        "grid-columns",
+        "grid-gap",
+        "source-arrowhead",
+        "target-arrowhead",
+    }
+)
+
+QUOTED_PATTERN = re.compile(r'"(?:[^"\\\n]|\\.)*"')
+NAME_SPECIAL_PATTERN = re.compile(r"[.:{}#;|\"'\\\n]|->|<-|--|^\s|\s$")
+LABEL_SPECIAL_PATTERN = re.compile(r"[:{}#;|\"\n]|^\s|\s$|^'")
+
+
+def quote(value: str) -> str:
+    escaped = value.replace("\\", "\\\\").replace('"', '\\"').replace("\n", "\\n")
+    return f'"{escaped}"'
+
+
+def quote_name(name: str) -> str:
+    if QUOTED_PATTERN.fullmatch(name):
+        return name
+    if not name or name.lower() in RESERVED_KEYWORDS or NAME_SPECIAL_PATTERN.search(name):
+        return quote(name)
+    return name
+
+
+def quote_label(label: str) -> str:
+    if QUOTED_PATTERN.fullmatch(label):
+        return label
+    if LABEL_SPECIAL_PATTERN.search(label):
+        return quote(label)
+    return label
+
+
 def indent(line, n: int = 2) -> str:
     return f"{' ' * n}{line}"
 
@@ -17,7 +73,7 @@ def add_label_and_properties(name: str, label: str | None = None, properties: li
         first_line += ' ""'
 
     if label and len(label) > 0:
-        first_line += f" {label}"
+        first_line += f" {quote_label(label)}"
 
     if has_properties:
         first_line += " {"
