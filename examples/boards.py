@@ -24,7 +24,8 @@ def main() -> None:
             d2.Layer(name="two", diagram=d2.Diagram(shapes=[d2.Shape(name="finish")])),
         ],
     )
-    Path("boards.d2").write_text(str(diagram), encoding="utf-8")
+    Path("boards.svg").write_bytes(d2.render(diagram))
+    Path("boards-detail.svg").write_bytes(d2.render(diagram, target="layers.detail"))
 
 
 if __name__ == "__main__":

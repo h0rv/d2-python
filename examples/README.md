@@ -24,4 +24,3 @@ uv run python examples/shapes.py
 | [config.py](config.py) | Layout engine, theme, direction and sketch mode through `vars` |
 | [ascii.py](ascii.py) | ASCII output printed with `d2.render(diagram, "txt")` |
 
-The `tala` layout engine is a separate install from d2, so the examples use `elk`.

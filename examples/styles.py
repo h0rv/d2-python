@@ -8,7 +8,7 @@ def main() -> None:
         shapes=[
             d2.Shape(
                 name="colors",
-                style=d2.Style(fill="gold", stroke="brown", stroke_width=3),
+                style=d2.Style(fill="#fde68a", stroke="#92400e", stroke_width=3),
             ),
             d2.Shape(
                 name="text",
