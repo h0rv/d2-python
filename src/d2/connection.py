@@ -1,13 +1,19 @@
 from __future__ import annotations
 
+import sys
 from dataclasses import dataclass
-from enum import Enum
-from enum import StrEnum
+from enum import Enum, StrEnum
+from typing import TYPE_CHECKING
 
-from d2.helpers import add_label_and_properties
-from d2.helpers import indent_lines
-from d2.helpers import quote_label
-from d2.style import Style
+from d2.helpers import add_label_and_properties, indent_lines, non_empty, quote_label
+
+if TYPE_CHECKING:
+    from d2.style import Style
+
+if sys.version_info >= (3, 12):
+    from typing import override
+else:
+    from typing_extensions import override
 
 
 class Direction(Enum):
@@ -38,8 +44,8 @@ class Arrowhead:
 
     def lines(self, key: str) -> list[str]:
         properties = [f"shape: {self.shape.value}"]
-        if self.label:
-            properties.append(f"label: {quote_label(self.label)}")
+        if (label := non_empty(self.label)) is not None:
+            properties.append(f"label: {quote_label(label)}")
         if self.filled is not None:
             properties.append(f"style.filled: {'true' if self.filled else 'false'}")
         return [f"{key}: {{", *indent_lines(properties), "}"]
@@ -57,7 +63,7 @@ class Connection:
         source_arrowhead: Arrowhead | None = None,
         target_arrowhead: Arrowhead | None = None,
         tooltip: str | None = None,
-    ):
+    ) -> None:
         self.shape_1 = shape_1
         self.shape_2 = shape_2
         self.label = label
@@ -69,18 +75,19 @@ class Connection:
 
     def lines(self) -> list[str]:
         properties: list[str] = []
-        if self.tooltip:
-            properties.append(f"tooltip: {quote_label(self.tooltip)}")
-        if self.source_arrowhead:
+        if (tooltip := non_empty(self.tooltip)) is not None:
+            properties.append(f"tooltip: {quote_label(tooltip)}")
+        if self.source_arrowhead is not None:
             properties += self.source_arrowhead.lines("source-arrowhead")
-        if self.target_arrowhead:
+        if self.target_arrowhead is not None:
             properties += self.target_arrowhead.lines("target-arrowhead")
-        if self.style:
+        if self.style is not None:
             properties += self.style.lines()
 
         base = f"{self.shape_1} {self.direction.value} {self.shape_2}"
-        return add_label_and_properties(base, self.label or None, properties)
+        return add_label_and_properties(base, non_empty(self.label), properties)
 
+    @override
     def __repr__(self) -> str:
         return "\n".join(self.lines())
 
@@ -96,10 +103,12 @@ class Connection:
             self.tooltip,
         )
 
-    def __hash__(self):
+    @override
+    def __hash__(self) -> int:
         return hash((self.shape_1, self.shape_2, self.label, self.direction))
 
-    def __eq__(self, other) -> bool:
+    @override
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, Connection):
             return NotImplemented
         return self._key() == other._key()

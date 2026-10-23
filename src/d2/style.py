@@ -1,6 +1,12 @@
+import sys
 from typing import Literal
 
 from d2.helpers import add_label_and_properties
+
+if sys.version_info >= (3, 12):
+    from typing import override
+else:
+    from typing_extensions import override
 
 
 FillPattern = Literal["dots", "lines", "grain", "none"]
@@ -11,11 +17,11 @@ def stringify_bool(val: bool) -> str:
     return "true" if val else "false"
 
 
-def render_value(value: str | int | float | bool) -> str | None:
+def render_value(value: str | float | bool) -> str | None:
     if isinstance(value, bool):
         return stringify_bool(value)
     if isinstance(value, str):
-        return value or None
+        return value if value != "" else None
     return str(value)
 
 
@@ -42,7 +48,7 @@ class Style:
         double_border: bool | None = None,
         multiple: bool | None = None,
         fill_pattern: FillPattern | None = None,
-    ):
+    ) -> None:
         self.stroke = stroke
         self.stroke_width = stroke_width
         self.fill = fill
@@ -64,7 +70,7 @@ class Style:
         self.fill_pattern = fill_pattern
 
     def lines(self) -> list[str]:
-        entries: list[tuple[str, str | int | float | bool | None]] = [
+        entries: list[tuple[str, str | float | bool | None]] = [
             ("stroke", self.stroke),
             ("stroke-width", self.stroke_width),
             ("fill", self.fill),
@@ -96,6 +102,7 @@ class Style:
 
         return add_label_and_properties("style", None, styles)
 
+    @override
     def __repr__(self) -> str:
         lines = self.lines()
         return "\n".join(lines)
