@@ -4,7 +4,7 @@ import sys
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Literal
 
-from d2.helpers import quote
+from d2._syntax import Field, Key, Quoted, Statement, emit
 from d2.shape import Shape, ShapeType
 
 if TYPE_CHECKING:
@@ -19,11 +19,9 @@ else:
 Visibility = Literal["+", "-", "#"]
 
 
-def member_line(name: str, visibility: Visibility | None, type_: str | None) -> str:
-    key = name if visibility is None else f"{visibility}{name}"
-    if visibility == "#":
-        key = quote(key)
-    return key if type_ is None else f"{key}: {quote(type_)}"
+def member(name: str, visibility: Visibility | None, type_: str | None) -> Field:
+    key = Key(name if visibility is None else f"{visibility}{name}")
+    return Field(key, None if type_ is None else Quoted(type_))
 
 
 @dataclass(frozen=True)
@@ -32,8 +30,11 @@ class ClassField:
     type: str | None = None
     visibility: Visibility | None = None
 
+    def statement(self) -> Field:
+        return member(self.name, self.visibility, self.type)
+
     def lines(self) -> list[str]:
-        return [member_line(self.name, self.visibility, self.type)]
+        return emit((self.statement(),))
 
 
 @dataclass(frozen=True)
@@ -43,12 +44,13 @@ class ClassMethod:
     return_type: str | None = None
     visibility: Visibility | None = None
 
+    def statement(self) -> Field:
+        return member(
+            f"{self.name}({self.parameters})", self.visibility, self.return_type
+        )
+
     def lines(self) -> list[str]:
-        return [
-            member_line(
-                f"{self.name}({self.parameters})", self.visibility, self.return_type
-            )
-        ]
+        return emit((self.statement(),))
 
 
 class ClassShape(Shape):
@@ -82,7 +84,5 @@ class ClassShape(Shape):
         self.methods.append(method)
 
     @override
-    def member_lines(self) -> list[str]:
-        return [
-            line for member in (*self.fields, *self.methods) for line in member.lines()
-        ]
+    def members(self) -> tuple[Statement, ...]:
+        return tuple(item.statement() for item in (*self.fields, *self.methods))

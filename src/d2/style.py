@@ -1,42 +1,32 @@
+from __future__ import annotations
+
 import sys
 from typing import Literal
 
-from d2.helpers import add_label_and_properties, quote_label
+from d2._limits import bounded
+from d2._syntax import Color, Field, Keyword, Value, emit, properties
 
 if sys.version_info >= (3, 12):
     from typing import override
 else:
     from typing_extensions import override
 
-
-FillPattern = Literal["dots", "lines", "grain", "none"]
-TextTransform = Literal["uppercase", "lowercase", "title", "none"]
-
-
-def stringify_bool(val: bool) -> str:
-    return "true" if val else "false"
-
-
-def render_value(value: str | float | bool) -> str | None:
-    if isinstance(value, bool):
-        return stringify_bool(value)
-    if isinstance(value, str):
-        return quote_label(value) if value != "" else None
-    return str(value)
+FillPattern = Literal["dots", "lines", "grain", "paper", "none"]
+TextTransform = Literal["uppercase", "lowercase", "capitalize", "none"]
 
 
 class Style:
     def __init__(
         self,
-        stroke: str | None = None,
+        stroke: str | Color | None = None,
         stroke_width: int | None = None,
-        fill: str | None = None,
+        fill: str | Color | None = None,
         shadow: bool | None = None,
         opacity: float | None = None,
         stroke_dash: int | None = None,
         three_d: bool | None = None,
-        font_color: str | None = None,
-        border_radius: str | None = None,
+        font_color: str | Color | None = None,
+        border_radius: int | str | None = None,
         *,
         font: Literal["mono"] | None = None,
         font_size: int | None = None,
@@ -49,17 +39,21 @@ class Style:
         multiple: bool | None = None,
         fill_pattern: FillPattern | None = None,
     ) -> None:
-        self.stroke = stroke
-        self.stroke_width = stroke_width
-        self.fill = fill
+        self.stroke = Color.of(stroke)
+        self.stroke_width = bounded("stroke_width", stroke_width, 0, 15)
+        self.fill = Color.of(fill)
         self.shadow = shadow
-        self.opacity = opacity
-        self.stroke_dash = stroke_dash
+        self.opacity = bounded("opacity", opacity, 0, 1)
+        self.stroke_dash = bounded("stroke_dash", stroke_dash, 0, 10)
         self.three_d = three_d
-        self.font_color = font_color
-        self.border_radius = border_radius
+        self.font_color = Color.of(font_color)
+        self.border_radius = bounded(
+            "border_radius",
+            None if border_radius in (None, "") else int(border_radius),
+            0,
+        )
         self.font = font
-        self.font_size = font_size
+        self.font_size = bounded("font_size", font_size, 8, 100)
         self.bold = bold
         self.italic = italic
         self.underline = underline
@@ -69,8 +63,8 @@ class Style:
         self.multiple = multiple
         self.fill_pattern = fill_pattern
 
-    def lines(self) -> list[str]:
-        entries: list[tuple[str, str | float | bool | None]] = [
+    def statements(self) -> tuple[Field, ...]:
+        entries: tuple[tuple[str, Value | None], ...] = (
             ("stroke", self.stroke),
             ("stroke-width", self.stroke_width),
             ("fill", self.fill),
@@ -80,29 +74,23 @@ class Style:
             ("3d", self.three_d),
             ("font-color", self.font_color),
             ("border-radius", self.border_radius),
-            ("font", self.font),
+            ("font", Keyword.of(self.font)),
             ("font-size", self.font_size),
             ("bold", self.bold),
             ("italic", self.italic),
             ("underline", self.underline),
-            ("text-transform", self.text_transform),
+            ("text-transform", Keyword.of(self.text_transform)),
             ("animated", self.animated),
             ("double-border", self.double_border),
             ("multiple", self.multiple),
-            ("fill-pattern", self.fill_pattern),
-        ]
-        styles = [
-            f"{key}: {rendered}"
-            for key, value in entries
-            if value is not None and (rendered := render_value(value)) is not None
-        ]
+            ("fill-pattern", Keyword.of(self.fill_pattern)),
+        )
+        styles = properties(entries)
+        return (Field(Keyword("style"), body=styles),) if styles else ()
 
-        if len(styles) == 0:
-            return []
-
-        return add_label_and_properties("style", None, styles)
+    def lines(self) -> list[str]:
+        return emit(self.statements())
 
     @override
     def __repr__(self) -> str:
-        lines = self.lines()
-        return "\n".join(lines)
+        return "\n".join(self.lines())

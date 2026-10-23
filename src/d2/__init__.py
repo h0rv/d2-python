@@ -1,4 +1,5 @@
 from ._render import D2Error, fmt, render, validate
+from ._syntax import Color
 from .class_shape import ClassField, ClassMethod, ClassShape
 from .connection import Arrowhead, ArrowheadShape, Connection, Direction
 from .diagram import Config, Diagram, Layer, Legend
@@ -12,6 +13,7 @@ __all__ = [
     "ClassField",
     "ClassMethod",
     "ClassShape",
+    "Color",
     "Config",
     "Connection",
     "D2Error",

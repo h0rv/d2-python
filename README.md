@@ -149,6 +149,8 @@ See the [tests](/tests/test_d2) for more detailed usage examples.
 
 Names and labels that D2 cannot read bare (such as `a.b`, `x: y`, or the keyword `shape`) are quoted for you. Connection endpoints are written as given, so they can be dotted paths.
 Style values you set are always written, even `0` or `False`. `None` means unset.
+Colors are checked when the `Style` is built. Pass a CSS color name, `transparent`, a 3 or 6 digit hex code with or without `#`, a `linear-gradient(...)`, a `radial-gradient(...)`, a `${variable}` or a `d2.Color`. Hex codes are lowercased and written quoted, and anything else raises `ValueError`.
+Numbers that D2 limits are checked too: `opacity` 0 to 1, `stroke_width` 0 to 15, `stroke_dash` 0 to 10, `font_size` 8 to 100, and non-negative `border_radius`, grid gaps, `top` and `left`.
 
 ```python
 import d2
