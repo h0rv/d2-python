@@ -2,29 +2,20 @@ from pathlib import Path
 
 import d2
 
-script = Path(__file__)
-banner = script.with_suffix(".svg")
-icon = "https://icons.terrastruct.com/dev%2Fpython.svg"
-blue = d2.Style(stroke="#3776ab", stroke_width=3)
-yellow = d2.Style(stroke="#ffd43b", stroke_width=3)
+me = Path(__file__)
+svg = me.with_suffix(".svg")
+blue, yellow = d2.Style(stroke="#3776ab"), d2.Style(stroke="#ffd43b")
+code = d2.Shape(name="py", label=d2.Text(me.read_text(), "python"), style=blue)
+image = d2.Shape(name="svg", label="", shape=d2.ShapeType.image, icon=str(svg))
+image.width, image.height = 600, 260
 
 source = ""
 for _ in range(3):
-    code = d2.Text(script.read_text(), "python")
-    d2_text = d2.Text("\n".join([*source.splitlines()[:6], "..."]), "d2")
-    image = d2.Shape(name="svg", label="this banner", shape=d2.ShapeType.image)
-    image.icon, image.width, image.height = str(banner.resolve()), 600, 260
+    text = d2.Text("\n".join([*source.splitlines()[:4], "..."]), "d2")
     diagram = d2.Diagram(
         direction="right",
-        shapes=[
-            d2.Shape(name="python", label=code, icon=icon, style=blue),
-            d2.Shape(name="d2", label=d2_text, style=yellow),
-            image,
-        ],
-        connections=[
-            d2.Connection("python", "d2", "d2-python", style=blue),
-            d2.Connection("d2", "svg", "d2", style=blue),
-        ],
+        shapes=[code, d2.Shape(name="d2", label=text, style=yellow), image],
+        connections=[d2.Connection("py", "d2"), d2.Connection("d2", "svg")],
     )
     source = str(diagram)
-    banner.write_bytes(d2.render(diagram, layout="elk"))
+    svg.write_bytes(d2.render(diagram, layout="elk", pad=20))

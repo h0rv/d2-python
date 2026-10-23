@@ -1,8 +1,8 @@
 # d2-python
 
-![A diagram drawn by d2-python. The Python code that builds it points to the D2 text it produces, which points to the rendered banner, which contains a smaller copy of itself.](docs/banner.svg)
+![d2-python banner](docs/banner.svg)
 
-d2-python is a typed Python library for building [D2](https://d2lang.com) diagrams. You describe shapes and connections as Python objects, and the library writes D2 text that you can render to SVG, PNG, PDF or ASCII. The banner above is drawn by [docs/banner.py](docs/banner.py).
+d2-python is a typed Python library for building [D2](https://d2lang.com) diagrams. You describe shapes and connections as Python objects, and the library writes D2 text that you can render to SVG, PNG, PDF or ASCII.
 
 This project is a maintained hard fork of [MrBlenny/py-d2](https://github.com/MrBlenny/py-d2), which has not been updated since 2024. See [Coming from py-d2](#coming-from-py-d2) if you used it.
 
