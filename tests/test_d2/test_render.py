@@ -93,3 +93,80 @@ def test_render__hex_colors_and_keyword_names() -> None:
         shapes=[d2.Shape(name="shadow", style=d2.Style(fill="#dbeafe"))]
     )
     assert d2.render(diagram).startswith(b"<?xml")
+
+
+def test_render__builds_options(monkeypatch: pytest.MonkeyPatch) -> None:
+    seen: list[list[str]] = []
+
+    def fake_run(command: list[str], source: d2.Diagram | str) -> bytes:
+        seen.append(command)
+        return str(source).encode()
+
+    monkeypatch.setattr("d2._render.run_d2", fake_run)
+
+    d2.render(
+        "a",
+        "pptx",
+        layout="elk",
+        theme=1,
+        dark_theme=200,
+        sketch=False,
+        pad=10,
+        scale=0.5,
+        center=True,
+        omit_version=True,
+        no_xml_tag=True,
+        salt="s",
+        animate_interval=500,
+        ascii_mode="standard",
+        timeout=30,
+    )
+
+    assert seen == [
+        [
+            "--layout",
+            "elk",
+            "--theme",
+            "1",
+            "--dark-theme",
+            "200",
+            "--sketch=false",
+            "--pad",
+            "10",
+            "--scale",
+            "0.5",
+            "--center=true",
+            "--omit-version=true",
+            "--no-xml-tag=true",
+            "--salt",
+            "s",
+            "--animate-interval",
+            "500",
+            "--ascii-mode",
+            "standard",
+            "--timeout",
+            "30",
+            "--target",
+            "",
+            "--stdout-format",
+            "pptx",
+            "-",
+            "-",
+        ]
+    ]
+
+
+def test_render__defaults_send_only_target_and_format(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    seen: list[list[str]] = []
+
+    def fake_run(command: list[str], source: d2.Diagram | str) -> bytes:
+        seen.append(command)
+        return str(source).encode()
+
+    monkeypatch.setattr("d2._render.run_d2", fake_run)
+
+    d2.render("a")
+
+    assert seen == [["--target", "", "--stdout-format", "svg", "-", "-"]]

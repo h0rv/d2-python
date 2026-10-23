@@ -1,9 +1,11 @@
-from ._render import D2Error, render
+from ._render import D2Error, format, render, validate
 from .class_shape import ClassField, ClassMethod, ClassShape
 from .connection import Arrowhead, ArrowheadShape, Connection, Direction
-from .diagram import Config, Diagram, Layer
-from .shape import Shape, ShapeType, Text
+from .diagram import Config, Diagram, Layer, Legend
+from .raw import Raw
+from .shape import LabelPosition, Shape, ShapeType
 from .style import Style
+from .text import Text
 
 __all__ = [
     "Arrowhead",
@@ -16,10 +18,15 @@ __all__ = [
     "D2Error",
     "Diagram",
     "Direction",
+    "LabelPosition",
     "Layer",
+    "Legend",
+    "Raw",
     "Shape",
     "ShapeType",
     "Style",
     "Text",
+    "format",
     "render",
+    "validate",
 ]

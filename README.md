@@ -89,7 +89,43 @@ with open("graph.svg", "wb") as f:
 print(d2.render(diagram, "txt").decode())
 ```
 
-The format can be `"svg"` (the default), `"png"`, `"pdf"` or `"txt"`, which is ASCII art. You can also pass `layout="dagre" | "elk" | "tala"` and `theme=<id>`. For a diagram with layers, scenarios or steps, `target=` picks the board: the root by default, or a path such as `"layers.detail"`. A source string works in place of a diagram. If d2 fails, `d2.D2Error` is raised with the message from d2. PNG and PDF make d2 download a headless browser the first time you use them.
+The format can be `"svg"` (the default), `"png"`, `"pdf"`, `"gif"`, `"pptx"` or `"txt"`, which is ASCII art. You can also pass `layout="dagre" | "elk" | "tala"` and `theme=<id>`. Other keyword options are `dark_theme`, `sketch`, `pad`, `scale`, `center`, `omit_version`, `no_xml_tag`, `salt`, `animate_interval`, `ascii_mode` and `timeout`. An option you leave out is not sent to d2. For a diagram with layers, scenarios or steps, `target=` picks the board: the root by default, or a path such as `"layers.detail"`. A source string works in place of a diagram. If d2 fails, `d2.D2Error` is raised with the message from d2. d2 0.9 renders PNG, PDF, GIF and PPTX itself. Older d2 versions download a headless browser for PNG and PDF the first time.
+
+## Validating and formatting
+
+`d2.validate` checks D2 source with `d2 validate` and raises `d2.D2Error` with d2's message when the source is wrong. `d2.format` returns the source formatted by `d2 fmt`. Both take a `Diagram` or a string, so they suit code or an LLM that writes D2 text and needs to check it.
+
+```python
+import d2
+
+d2.validate("a -> b")
+
+try:
+    d2.validate("a -> {")
+except d2.D2Error as error:
+    print(error)
+
+print(d2.format("a->b"))
+```
+
+`validate` checks syntax and meaning, but does not lay the diagram out. Some errors, such as `top` and `left` with the dagre layout, only show when you render.
+
+## Raw D2
+
+Anything the objects do not cover can be written as D2 text with `raw=`. It takes a string or a `d2.Raw`, and is dedented for you. On a `Diagram` it is added at the end of the file (or with `add_raw`), on a `Shape` or `Connection` it goes inside the block.
+
+```python
+diagram = d2.Diagram(
+    shapes=[d2.Shape(name="a"), d2.Shape(name="b")],
+    connections=[d2.Connection("a", "b")],
+    raw="""
+        *.style.fill: "#dbeafe"
+        (a -> b)[0].style.stroke: red
+    """,
+)
+```
+
+Use it for globs, imports, `suspend`, connection references and anything newer than this library.
 
 See the [tests](/tests/test_d2) for more detailed usage examples.
 
@@ -116,6 +152,15 @@ See the [tests](/tests/test_d2) for more detailed usage examples.
 - [x] Shape tooltips, size, grids, direction and classes
 - [x] Diagram direction, classes and `d2-config` vars
 - [x] Scenarios and steps
+- [x] `d2.validate` and `d2.format` through the d2 command
+- [x] Raw D2 on diagrams, shapes and connections
+- [x] Markdown, LaTeX or code as shape and connection labels (`label=d2.Text(...)`)
+- [x] `label_near` and `icon_near` positions, `top` and `left`, grid `vertical_gap` and `horizontal_gap`
+- [x] Connection icons, links and classes
+- [x] `c4-person` shape and sequence diagrams
+- [x] Variables (`variables=`) with `${name}` substitution, and gradient fills
+- [x] Legends and board labels
+- [x] More render options and gif and pptx output
 
 ## More features
 

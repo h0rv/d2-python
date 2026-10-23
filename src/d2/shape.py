@@ -7,11 +7,12 @@ from typing import TYPE_CHECKING, Literal
 from d2.helpers import (
     add_label_and_properties,
     flatten,
-    indent_lines,
     non_empty,
     quote_label,
     quote_name,
 )
+from d2.raw import Raw
+from d2.text import Text
 
 if TYPE_CHECKING:
     from d2.connection import Connection
@@ -50,29 +51,50 @@ class ShapeType(Enum):
     image = "image"
     classs = "class"
     sequence_diagram = "sequence_diagram"
+    c4_person = "c4-person"
 
 
-class Text:
-    def __init__(
-        self,
-        # The actual text body (multiline is fine)
-        text: str,
-        # The format, eg) md, tex, html, css etc
-        formatting: str,
-        # The number of pipes to use
-        pipes: int = 1,
-    ) -> None:
-        self.text = text
-        self.formatting = formatting
-        self.pipes = pipes
+LabelPosition = Literal[
+    "outside-top-left",
+    "outside-top-center",
+    "outside-top-right",
+    "outside-left-top",
+    "outside-left-center",
+    "outside-left-bottom",
+    "outside-right-top",
+    "outside-right-center",
+    "outside-right-bottom",
+    "outside-bottom-left",
+    "outside-bottom-center",
+    "outside-bottom-right",
+    "border-top-left",
+    "border-top-center",
+    "border-top-right",
+    "border-left-top",
+    "border-left-center",
+    "border-left-bottom",
+    "border-right-top",
+    "border-right-center",
+    "border-right-bottom",
+    "border-bottom-left",
+    "border-bottom-center",
+    "border-bottom-right",
+    "inside-top-left",
+    "inside-top-center",
+    "inside-top-right",
+    "inside-middle-left",
+    "inside-middle-center",
+    "inside-middle-right",
+    "inside-bottom-left",
+    "inside-bottom-center",
+    "inside-bottom-right",
+]
 
-    def lines(self) -> list[str]:
-        sep = "|" * self.pipes
-        return [f"{sep}{self.formatting}", *self.text.split("\n"), sep]
 
-    @override
-    def __repr__(self) -> str:
-        return "\n".join(self.lines())
+def label_parts(label: str | Text | None) -> tuple[str | None, list[str]]:
+    if isinstance(label, Text):
+        return None, label.block_lines("label")
+    return label, []
 
 
 class Shape:
@@ -80,7 +102,7 @@ class Shape:
         self,
         name: str,
         # The label of this shape
-        label: str | None = None,
+        label: str | Text | None = None,
         # The actual 2D shape of this shape
         shape: ShapeType | None = None,
         # A list of child shapes (when this shape is a container)
@@ -104,6 +126,13 @@ class Shape:
         grid_gap: int | None = None,
         direction: LayoutDirection | None = None,
         classes: list[str] | None = None,
+        label_near: LabelPosition | None = None,
+        icon_near: LabelPosition | None = None,
+        top: int | None = None,
+        left: int | None = None,
+        vertical_gap: int | None = None,
+        horizontal_gap: int | None = None,
+        raw: Raw | str | None = None,
         **kwargs: Text,
     ) -> None:
         self.name = name
@@ -123,6 +152,13 @@ class Shape:
         self.grid_gap = grid_gap
         self.direction = direction
         self.classes = classes or []
+        self.label_near = label_near
+        self.icon_near = icon_near
+        self.top = top
+        self.left = left
+        self.vertical_gap = vertical_gap
+        self.horizontal_gap = horizontal_gap
+        self.raw = None if raw is None else Raw.parse(raw)
         self.kwargs = kwargs
 
     def add_shape(self, shape: Shape) -> None:
@@ -143,6 +179,12 @@ class Shape:
             ("grid-columns", self.grid_columns),
             ("grid-gap", self.grid_gap),
             ("direction", self.direction),
+            ("vertical-gap", self.vertical_gap),
+            ("horizontal-gap", self.horizontal_gap),
+            ("top", self.top),
+            ("left", self.left),
+            ("label.near", self.label_near),
+            ("icon.near", self.icon_near),
         ):
             if value is not None:
                 properties.append(f"{key}: {value}")
@@ -182,17 +224,15 @@ class Shape:
         properties += self.attribute_lines()
 
         for key, value in self.kwargs.items():
-            other_property = value.lines()
-            other_property_line_1 = other_property[0]
-            other_property_lines_other = other_property[1:-1]
-            other_property_line_end = other_property[-1]
-            properties += [
-                f"{key}: {other_property_line_1}",
-                *indent_lines(other_property_lines_other),
-                other_property_line_end,
-            ]
+            properties += value.block_lines(key)
 
-        return add_label_and_properties(quote_name(self.name), self.label, properties)
+        if self.raw is not None:
+            properties += self.raw.lines()
+
+        label, label_lines = label_parts(self.label)
+        return add_label_and_properties(
+            quote_name(self.name), label, [*label_lines, *properties]
+        )
 
     @override
     def __repr__(self) -> str:

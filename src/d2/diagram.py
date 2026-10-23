@@ -1,12 +1,21 @@
 from __future__ import annotations
 
 import sys
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Literal
 
-from d2.helpers import add_label_and_properties, indent, indent_lines, quote_name
+from d2.helpers import (
+    add_label_and_properties,
+    indent,
+    indent_lines,
+    quote_label,
+    quote_name,
+)
+from d2.raw import Raw
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
+
     from d2.connection import Connection
     from d2.shape import LayoutDirection, Shape
     from d2.style import Style
@@ -49,13 +58,48 @@ class Config:
         ]
 
 
+VarValue = str | int | float | bool
+
+
+def var_lines(variables: Mapping[str, VarValue]) -> list[str]:
+    entries = [
+        f"{quote_name(name)}: "
+        + (
+            str(value).lower()
+            if isinstance(value, bool)
+            else ('""' if value == "" else quote_label(str(value)))
+        )
+        for name, value in variables.items()
+    ]
+    return ["vars: {", *indent_lines(entries), "}"] if entries else []
+
+
+@dataclass(frozen=True, kw_only=True)
+class Legend:
+    shapes: list[Shape] = field(default_factory=list)
+    connections: list[Connection] = field(default_factory=list)
+    label: str | None = None
+    near: str | None = None
+
+    def lines(self) -> list[str]:
+        properties = [f"near: {self.near}"] if self.near is not None else []
+        properties += [line for shape in self.shapes for line in shape.lines()]
+        properties += [
+            line for connection in self.connections for line in connection.lines()
+        ]
+        return add_label_and_properties("legend", self.label, properties)
+
+
 class Layer:
     def __init__(
         self,
         name: str,
         diagram: Diagram | None = None,
+        *,
+        label: str | None = None,
     ) -> None:
         self.name = name
+        self.label = label
         self.diagram = Diagram() if diagram is None else diagram
 
     def set_diagram(self, diagram: Diagram) -> None:
@@ -70,8 +114,9 @@ class Layer:
         outer_indent_size = depth * 2
         inner_indent_size = outer_indent_size + 2
 
+        title = f" {quote_label(self.label)}" if self.label is not None else ""
         return [
-            indent(f"{quote_name(self.name)}: {{", outer_indent_size),
+            indent(f"{quote_name(self.name)}:{title} {{", outer_indent_size),
             *indent_lines(lines, inner_indent_size),
             indent("}", outer_indent_size),
         ]
@@ -101,6 +146,9 @@ class Diagram:
         scenarios: list[Layer] | None = None,
         steps: list[Layer] | None = None,
         comments: list[str] | None = None,
+        variables: Mapping[str, VarValue] | None = None,
+        legend: Legend | None = None,
+        raw: Raw | str | None = None,
     ) -> None:
         self.shapes = shapes or []
         self.connections = connections or []
@@ -111,6 +159,9 @@ class Diagram:
         self.scenarios = scenarios or []
         self.steps = steps or []
         self.comments = comments or []
+        self.variables = dict(variables) if variables is not None else {}
+        self.legend = legend
+        self.raws: list[Raw] = [] if raw is None else [Raw.parse(raw)]
 
     def add_shape(self, shape: Shape) -> None:
         self.shapes.append(shape)
@@ -129,6 +180,9 @@ class Diagram:
 
     def add_comment(self, comment: str) -> None:
         self.comments.append(comment)
+
+    def add_raw(self, raw: Raw | str) -> None:
+        self.raws.append(Raw.parse(raw))
 
     def class_lines(self) -> list[str]:
         classes = [
@@ -155,13 +209,16 @@ class Diagram:
         return (
             comments
             + config
+            + var_lines(self.variables)
             + direction
             + self.class_lines()
             + shapes
             + connections
+            + (self.legend.lines() if self.legend is not None else [])
             + board_lines("layers", self.layers)
             + board_lines("scenarios", self.scenarios)
             + board_lines("steps", self.steps)
+            + [line for raw in self.raws for line in raw.lines()]
         )
 
     @override
