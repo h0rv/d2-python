@@ -170,3 +170,21 @@ def test_render__defaults_send_only_target_and_format(
     d2.render("a")
 
     assert seen == [["--target", "", "--stdout-format", "svg", "-", "-"]]
+
+
+@requires_d2
+def test_render__legend_is_drawn_as_a_legend() -> None:
+    diagram = d2.Diagram(
+        shapes=[d2.Shape(name="api")],
+        legend=d2.Legend(
+            label="Key",
+            connections=[
+                d2.Connection("a", "b", "calls", style=d2.Style(stroke="red"))
+            ],
+        ),
+    )
+
+    svg = d2.render(diagram).decode()
+
+    assert ">Key<" in svg
+    assert "calls" in svg
