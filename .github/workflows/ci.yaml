@@ -48,3 +48,4 @@ jobs:
             "$project/.venv/bin/python" "$example"
             echo "::endgroup::"
           done
+      - run: uv run --locked --extra bin python docs/banner.py
