@@ -208,3 +208,47 @@ def test_d2_shape_text_can_specify_pipe_count():
             "}",
         ]
     )
+
+
+def test_d2_shape_name_is_quoted_when_needed():
+    assert str(Shape(name="a.b")) == '"a.b"'
+    assert str(Shape(name="shape")) == '"shape"'
+    assert str(Shape(name="a:b", label="x")) == '"a:b": x'
+
+
+def test_d2_shape_label_is_quoted_when_needed():
+    assert str(Shape(name="a", label="x: y")) == 'a: "x: y"'
+    assert str(Shape(name="a", label='say "hi"\nnow')) == 'a: "say \\"hi\\"\\nnow"'
+
+
+def test_d2_shape_plain_names_stay_bare():
+    assert str(Shape(name="my shape", label="hello world")) == "my shape: hello world"
+
+
+def test_d2_shape_tooltip():
+    assert str(Shape(name="a", tooltip="some tip")) == "a: {\n  tooltip: some tip\n}"
+
+
+def test_d2_shape_size_and_grid():
+    shape = Shape(name="a", width=200, height=100, grid_rows=2, grid_columns=3, grid_gap=0)
+    assert str(shape) == "\n".join(
+        [
+            "a: {",
+            "  width: 200",
+            "  height: 100",
+            "  grid-rows: 2",
+            "  grid-columns: 3",
+            "  grid-gap: 0",
+            "}",
+        ]
+    )
+
+
+def test_d2_shape_direction():
+    shape = Shape(name="a", direction="right", shapes=[Shape(name="b")])
+    assert str(shape) == "a: {\n  b\n  direction: right\n}"
+
+
+def test_d2_shape_classes():
+    assert str(Shape(name="a", classes=["x"])) == "a: {\n  class: x\n}"
+    assert str(Shape(name="a", classes=["x", "y"])) == "a: {\n  class: [x; y]\n}"
