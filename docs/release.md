@@ -1,6 +1,4 @@
-# Release Process
+# Release
 
-* Update the [pyproject.toml](../pyproject.toml) version number
-* Create a tag / release on GitHub
-* Wait for the CI to finish
-  
+1. Update `version` in `pyproject.toml`.
+2. Publish a GitHub release. The publish workflow builds with `uv build` and uploads to PyPI with trusted publishing.

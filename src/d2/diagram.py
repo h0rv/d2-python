@@ -1,8 +1,5 @@
 from __future__ import annotations
 
-from typing import List
-from typing import Optional
-
 from d2.connection import Connection
 from d2.helpers import indent
 from d2.helpers import indent_lines
@@ -13,7 +10,7 @@ class Layer:
     def __init__(
         self,
         name: str,
-        diagram: Optional[Diagram] = None,
+        diagram: Diagram | None = None,
     ):
         self.name = name
         self.diagram = diagram or Diagram()
@@ -21,7 +18,7 @@ class Layer:
     def set_diagram(self, diagram: Diagram):
         self.diagram = diagram
 
-    def lines(self, depth=1) -> List[str]:
+    def lines(self, depth=1) -> list[str]:
         lines = self.diagram.lines()
 
         if len(lines) == 0:
@@ -47,9 +44,9 @@ class Layer:
 class Diagram:
     def __init__(
         self,
-        shapes: Optional[List[Shape]] = None,
-        connections: Optional[List[Connection]] = None,
-        layers: Optional[List[Layer]] = None,
+        shapes: list[Shape] | None = None,
+        connections: list[Connection] | None = None,
+        layers: list[Layer] | None = None,
     ):
         self.shapes = shapes or []
         self.connections = connections or []
@@ -64,7 +61,7 @@ class Diagram:
     def add_layer(self, layer: Layer):
         self.layers.append(layer)
 
-    def lines(self) -> List[str]:
+    def lines(self) -> list[str]:
         shapes = [str(shape) for shape in self.shapes]
         connections = [str(connection) for connection in self.connections]
         layers = [line for layer in self.layers for line in layer.lines() if layer.lines()]

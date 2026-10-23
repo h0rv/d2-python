@@ -4,6 +4,9 @@
 
 An unofficial, fully typed python interface for building [.d2](https://github.com/terrastruct/d2) diagram files in python.
 
+This is a maintained hard fork of [MrBlenny/py-d2](https://github.com/MrBlenny/py-d2), which is no longer updated.
+Coming from py-d2: import `d2` instead of `py_d2`, and drop the `D2` prefix from class names, such as `d2.Shape` for `py_d2.D2Shape`.
+
 ## Installation
 
 ```bash
@@ -17,10 +20,9 @@ import d2
 
 shapes = [
     d2.Shape(name="shape_name1", style=d2.Style(fill="red")),
-    d2.Shape(name="shape_name2", style=d2.Style(fill="blue"))]
-connections = [
-    d2.Connection(shape_1="shape_name1", shape_2="shape_name2")
+    d2.Shape(name="shape_name2", style=d2.Style(fill="blue")),
 ]
+connections = [d2.Connection(shape_1="shape_name1", shape_2="shape_name2")]
 
 diagram = d2.Diagram(shapes=shapes, connections=connections)
 
@@ -72,71 +74,22 @@ See the [tests](/tests/test_d2) for more detailed usage examples.
 
 ## Examples
 
-`examples/`
+See [`examples/`](examples/):
 
 ```sh
-uv run python examples/<example>.py
+uv run python examples/simple_sql_schema.py
 ```
-
-SQL Table:
-
-```sh
-uv run python example/simple_sql_schema.py
-# Open diagram:
-open simple_sql_schema.svg
-```
-
-
 
 ## Development
-### Prerequisite
 
-- [Python 3.8+](https://www.python.org/)
-- [uv](https://docs.astral.sh/uv/)
-- [pre-commit](https://pre-commit.com/)
-
-### Installation
-
-following the steps below to setup the project:
+Requires [uv](https://docs.astral.sh/uv/).
 
 ```bash
-
-```bash
-# Clone the repository
 git clone git@github.com:h0rv/d2-python.git && cd d2-python
-
-# Install all dependencies
-uv sync --all-extras --dev
-
-# install git hook scripts for development
-pre-commit install
-
-# Install dev dependencies for development
-uv sync --dev
-# Only install required dependencies for production
 uv sync
-```
 
-### Usage
-
-There are some useful commands for development:
-
-```bash
-# Run the example
-uv run example
-
-# Code test
-uv run pytest -s
-
-# Lint and format with ruff
-uv run ruff check ./src
-
-# Format code with ruff
-uv run ruff format ./src
-
-# Check with mypy
-uv run mypy ./src
-
-# Run coverage test
-uv run pytest -s --cov=./src --cov-report=term-missing
+uv run pytest
+uv run ruff check
+uv run ruff format
+uv run ty check
 ```

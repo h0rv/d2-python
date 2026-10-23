@@ -1,8 +1,6 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import List
-from typing import Optional
 
 from d2.connection import Connection
 from d2.helpers import add_label_and_properties
@@ -51,7 +49,7 @@ class Text:
         self.formatting = formatting
         self.pipes = pipes
 
-    def lines(self) -> List[str]:
+    def lines(self) -> list[str]:
         sep = "|" * self.pipes
         return [f"{sep}{self.formatting}", *self.text.split("\n"), sep]
 
@@ -64,21 +62,21 @@ class Shape:
         self,
         name: str,
         # The label of this shape
-        label: Optional[str] = None,
+        label: str | None = None,
         # The actual 2D shape of this shape
-        shape: Optional[ShapeType] = None,
+        shape: ShapeType | None = None,
         # A list of child shapes (when this shape is a container)
-        shapes: Optional[List[Shape]] = None,
+        shapes: list[Shape] | None = None,
         # The style of this shape
-        style: Optional[Style] = None,
+        style: Style | None = None,
         # An icon for this shape
-        icon: Optional[str] = None,
+        icon: str | None = None,
         # Connections for the child shapes (NOT the connections for this shape)
-        connections: Optional[List[Connection]] = None,
+        connections: list[Connection] | None = None,
         # A shape this is near
-        near: Optional[str] = None,
+        near: str | None = None,
         # A link for a shape (when clicked)
-        link: Optional[str] = None,
+        link: str | None = None,
         **kwargs: Text,
     ):
         self.name = name
@@ -98,7 +96,7 @@ class Shape:
     def add_connection(self, connection: Connection):
         self.connections.append(connection)
 
-    def lines(self) -> List[str]:
+    def lines(self) -> list[str]:
         shapes = flatten([shape.lines() for shape in self.shapes])
         connections = flatten([connection.lines() for connection in self.connections])
         properties = shapes + connections
