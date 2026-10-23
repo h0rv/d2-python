@@ -4,12 +4,17 @@ import sys
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Literal
 
-from d2.helpers import (
-    add_label_and_properties,
-    indent,
-    indent_lines,
-    quote_label,
-    quote_name,
+from d2._limits import bounded
+from d2._syntax import (
+    Comment,
+    Field,
+    Key,
+    Keyword,
+    Label,
+    Statement,
+    Value,
+    emit,
+    properties,
 )
 
 if TYPE_CHECKING:
@@ -25,52 +30,43 @@ else:
     from typing_extensions import override
 
 
+LayoutEngine = Literal["dagre", "elk", "tala"]
+
+
 @dataclass(frozen=True, kw_only=True)
 class Config:
-    layout_engine: Literal["dagre", "elk", "tala"] | None = None
+    layout_engine: LayoutEngine | None = None
     theme_id: int | None = None
     dark_theme_id: int | None = None
     pad: int | None = None
     sketch: bool | None = None
     center: bool | None = None
 
-    def lines(self) -> list[str]:
-        entries = [
-            ("layout-engine", self.layout_engine),
+    def __post_init__(self) -> None:
+        bounded("theme_id", self.theme_id, 0)
+        bounded("dark_theme_id", self.dark_theme_id, 0)
+
+    def statements(self) -> tuple[Field, ...]:
+        entries: tuple[tuple[str, Value | None], ...] = (
+            ("layout-engine", Keyword.of(self.layout_engine)),
             ("theme-id", self.theme_id),
             ("dark-theme-id", self.dark_theme_id),
             ("pad", self.pad),
             ("sketch", self.sketch),
             ("center", self.center),
-        ]
-        properties = [
-            f"{key}: {str(value).lower() if isinstance(value, bool) else value}"
-            for key, value in entries
-            if value is not None
-        ]
-        if not properties:
-            return []
-        return [
-            "vars: {",
-            *indent_lines(add_label_and_properties("d2-config", None, properties)),
-            "}",
-        ]
+        )
+        config = properties(entries)
+        if not config:
+            return ()
+        return (
+            Field(Keyword("vars"), body=(Field(Keyword("d2-config"), body=config),)),
+        )
+
+    def lines(self) -> list[str]:
+        return emit(self.statements())
 
 
 VarValue = str | int | float | bool
-
-
-def var_lines(variables: Mapping[str, VarValue]) -> list[str]:
-    entries = [
-        f"{quote_name(name)}: "
-        + (
-            str(value).lower()
-            if isinstance(value, bool)
-            else ('""' if value == "" else quote_label(str(value)))
-        )
-        for name, value in variables.items()
-    ]
-    return ["vars: {", *indent_lines(entries), "}"] if entries else []
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -80,13 +76,16 @@ class Legend:
     label: str | None = None
     near: NearPosition | None = None
 
+    def statements(self) -> tuple[Field, ...]:
+        body: tuple[Statement, ...] = (
+            *properties((("near", Keyword.of(self.near)),)),
+            *(s for shape in self.shapes for s in shape.statements()),
+            *(s for connection in self.connections for s in connection.statements()),
+        )
+        return (Field(Keyword("legend"), Label.of(self.label), body),)
+
     def lines(self) -> list[str]:
-        properties = [f"near: {self.near}"] if self.near is not None else []
-        properties += [line for shape in self.shapes for line in shape.lines()]
-        properties += [
-            line for connection in self.connections for line in connection.lines()
-        ]
-        return add_label_and_properties("legend", self.label, properties)
+        return emit(self.statements())
 
 
 class Layer:
@@ -104,32 +103,23 @@ class Layer:
     def set_diagram(self, diagram: Diagram) -> None:
         self.diagram = diagram
 
+    def statements(self) -> tuple[Field, ...]:
+        body = self.diagram.statements()
+        if not body:
+            return ()
+        return (Field(Key(self.name), Label.of(self.label), body),)
+
     def lines(self, depth: int = 1) -> list[str]:
-        lines = self.diagram.lines()
+        return emit(self.statements(), depth)
 
-        if len(lines) == 0:
-            return []
-
-        outer_indent_size = depth * 2
-        inner_indent_size = outer_indent_size + 2
-
-        title = f" {quote_label(self.label)}" if self.label is not None else ""
-        return [
-            indent(f"{quote_name(self.name)}:{title} {{", outer_indent_size),
-            *indent_lines(lines, inner_indent_size),
-            indent("}", outer_indent_size),
-        ]
-
-    @override
     @override
     def __repr__(self) -> str:
-        lines = self.lines()
-        return "\n".join(lines)
+        return "\n".join(self.lines())
 
 
-def board_lines(key: str, boards: list[Layer]) -> list[str]:
-    lines = [line for board in boards for line in board.lines()]
-    return [f"{key}: {{", *lines, "}"] if lines else []
+def boards(key: str, layers: list[Layer]) -> tuple[Field, ...]:
+    body = tuple(s for layer in layers for s in layer.statements())
+    return (Field(Keyword(key), body=body),) if body else ()
 
 
 class Diagram:
@@ -178,43 +168,39 @@ class Diagram:
     def add_comment(self, comment: str) -> None:
         self.comments.append(comment)
 
-    def class_lines(self) -> list[str]:
-        classes = [
-            line
+    def class_statements(self) -> tuple[Field, ...]:
+        body = tuple(
+            Field(Key(name), body=style.statements())
             for name, style in self.classes.items()
-            if style.lines()
-            for line in indent_lines(
-                add_label_and_properties(quote_name(name), None, style.lines())
-            )
-        ]
-        return ["classes: {", *classes, "}"] if classes else []
+            if style.statements()
+        )
+        return (Field(Keyword("classes"), body=body),) if body else ()
+
+    def variable_statements(self) -> tuple[Field, ...]:
+        body = tuple(
+            Field(Key(name), Label(value) if isinstance(value, str) else value)
+            for name, value in self.variables.items()
+        )
+        return (Field(Keyword("vars"), body=body),) if body else ()
+
+    def statements(self) -> tuple[Statement, ...]:
+        return (
+            *(Comment(comment) for comment in self.comments),
+            *(self.vars.statements() if self.vars is not None else ()),
+            *self.variable_statements(),
+            *properties((("direction", Keyword.of(self.direction)),)),
+            *self.class_statements(),
+            *(s for shape in self.shapes for s in shape.statements()),
+            *(s for connection in self.connections for s in connection.statements()),
+            *(self.legend.statements() if self.legend is not None else ()),
+            *boards("layers", self.layers),
+            *boards("scenarios", self.scenarios),
+            *boards("steps", self.steps),
+        )
 
     def lines(self) -> list[str]:
-        comments = [
-            f"# {line}" for comment in self.comments for line in comment.split("\n")
-        ]
-        config = self.vars.lines() if self.vars is not None else []
-        direction = (
-            [f"direction: {self.direction}"] if self.direction is not None else []
-        )
-        shapes = [str(shape) for shape in self.shapes]
-        connections = [str(connection) for connection in self.connections]
-
-        return (
-            comments
-            + config
-            + var_lines(self.variables)
-            + direction
-            + self.class_lines()
-            + shapes
-            + connections
-            + (self.legend.lines() if self.legend is not None else [])
-            + board_lines("layers", self.layers)
-            + board_lines("scenarios", self.scenarios)
-            + board_lines("steps", self.steps)
-        )
+        return emit(self.statements())
 
     @override
     def __repr__(self) -> str:
-        lines = self.lines()
-        return "\n".join(lines)
+        return "\n".join(self.lines())

@@ -2,7 +2,7 @@ import shutil
 import subprocess
 from typing import Literal
 
-from d2.diagram import Diagram
+from d2.diagram import Diagram, LayoutEngine
 
 RenderFormat = Literal["svg", "png", "pdf", "txt", "gif", "pptx"]
 
@@ -48,7 +48,7 @@ def render(
     diagram: Diagram | str,
     format: RenderFormat = "svg",
     *,
-    layout: Literal["dagre", "elk", "tala"] | None = None,
+    layout: LayoutEngine | None = None,
     theme: int | None = None,
     target: str = "",
     dark_theme: int | None = None,

@@ -2,17 +2,23 @@ from __future__ import annotations
 
 import sys
 from dataclasses import dataclass
-from enum import Enum, StrEnum
-from typing import TYPE_CHECKING
+from enum import StrEnum
+from typing import TYPE_CHECKING, Literal
 
-from d2.helpers import (
-    add_label_and_properties,
-    indent_lines,
-    non_empty,
-    quote_label,
-    quote_name,
+from d2._syntax import (
+    Direction,
+    Edge,
+    Field,
+    Keyword,
+    Label,
+    Statement,
+    Text,
+    Url,
+    class_references,
+    emit,
+    properties,
+    split_label,
 )
-from d2.text import Text
 
 if TYPE_CHECKING:
     from d2.style import Style
@@ -22,12 +28,12 @@ if sys.version_info >= (3, 12):
 else:
     from typing_extensions import override
 
-
-class Direction(Enum):
-    TO = "->"
-    FROM = "<-"
-    BOTH = "<->"
-    NONE = "--"
+__all__ = [
+    "Arrowhead",
+    "ArrowheadShape",
+    "Connection",
+    "Direction",
+]
 
 
 class ArrowheadShape(StrEnum):
@@ -49,13 +55,23 @@ class Arrowhead:
     label: str | None = None
     filled: bool | None = None
 
-    def lines(self, key: str) -> list[str]:
-        properties = [f"shape: {self.shape.value}"]
-        if (label := non_empty(self.label)) is not None:
-            properties.append(f"label: {quote_label(label)}")
-        if self.filled is not None:
-            properties.append(f"style.filled: {'true' if self.filled else 'false'}")
-        return [f"{key}: {{", *indent_lines(properties), "}"]
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "label", self.label or None)
+
+    def statement(self, key: Literal["source-arrowhead", "target-arrowhead"]) -> Field:
+        return Field(
+            Keyword(key),
+            body=properties(
+                (
+                    ("shape", self.shape),
+                    ("label", Label.of(self.label)),
+                    ("style.filled", self.filled),
+                )
+            ),
+        )
+
+    def lines(self, key: Literal["source-arrowhead", "target-arrowhead"]) -> list[str]:
+        return emit((self.statement(key),))
 
 
 class Connection:
@@ -76,41 +92,47 @@ class Connection:
     ) -> None:
         self.shape_1 = shape_1
         self.shape_2 = shape_2
-        self.label = label
+        self.label = label or None
         self.direction = direction
         self.style = style
         self.source_arrowhead = source_arrowhead
         self.target_arrowhead = target_arrowhead
-        self.tooltip = tooltip
-        self.icon = icon
-        self.link = link
+        self.tooltip = tooltip or None
+        self.icon = icon or None
+        self.link = link or None
         self.classes = classes or []
 
-    def lines(self) -> list[str]:
-        properties: list[str] = []
-        if (tooltip := non_empty(self.tooltip)) is not None:
-            properties.append(f"tooltip: {quote_label(tooltip)}")
-        if self.source_arrowhead is not None:
-            properties += self.source_arrowhead.lines("source-arrowhead")
-        if self.target_arrowhead is not None:
-            properties += self.target_arrowhead.lines("target-arrowhead")
-        if self.style is not None:
-            properties += self.style.lines()
-        if (icon := non_empty(self.icon)) is not None:
-            properties.append(f"icon: {icon}")
-        if (link := non_empty(self.link)) is not None:
-            properties.append(f"link: {link}")
-        if self.classes:
-            names = [quote_name(name) for name in self.classes]
-            joined = names[0] if len(names) == 1 else f"[{'; '.join(names)}]"
-            properties.append(f"class: {joined}")
+    def statements(self) -> tuple[Edge, ...]:
+        label, label_block = split_label(self.label)
+        body: tuple[Statement, ...] = (
+            *label_block,
+            *properties((("tooltip", Label.of(self.tooltip)),)),
+            *(
+                head.statement(key)
+                for key, head in (
+                    ("source-arrowhead", self.source_arrowhead),
+                    ("target-arrowhead", self.target_arrowhead),
+                )
+                if head is not None
+            ),
+            *(self.style.statements() if self.style is not None else ()),
+            *properties(
+                (("icon", Url.of(self.icon)), ("link", Url.of(self.link))),
+            ),
+            *class_references(self.classes),
+        )
+        return (
+            Edge(
+                Keyword(self.shape_1),
+                self.direction,
+                Keyword(self.shape_2),
+                label,
+                body,
+            ),
+        )
 
-        label = self.label
-        if isinstance(label, Text):
-            properties = [*label.block_lines("label"), *properties]
-            label = None
-        base = f"{self.shape_1} {self.direction.value} {self.shape_2}"
-        return add_label_and_properties(base, non_empty(label), properties)
+    def lines(self) -> list[str]:
+        return emit(self.statements())
 
     @override
     def __repr__(self) -> str:

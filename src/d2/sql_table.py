@@ -4,9 +4,19 @@ import sys
 from enum import Enum
 from typing import TYPE_CHECKING, TypeAlias, TypedDict
 
+from d2._syntax import (
+    Field,
+    Key,
+    Keyword,
+    Label,
+    Statement,
+    Url,
+    emit,
+    one_or_array,
+    properties,
+)
 from d2.connection import Connection, Direction
-from d2.helpers import add_label_and_properties, non_empty, quote_name
-from d2.shape import Shape, ShapeType, label_parts
+from d2.shape import Shape, ShapeType
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -50,20 +60,20 @@ class SQLField:
         else:
             self.constraints = [constraint]
 
-    def to_d2_format(self) -> str:
-        if not self.constraints:
-            return f"{self.name}: {self.data_type}"
-
-        constraints_str = "; ".join(
-            c.value if isinstance(c, SQLConstraint) else c for c in self.constraints
+    def statement(self) -> Field:
+        constraints = [
+            Label(c.value if isinstance(c, SQLConstraint) else c)
+            for c in self.constraints
+        ]
+        body = (
+            (Field(Keyword("constraint"), one_or_array(constraints)),)
+            if constraints
+            else ()
         )
+        return Field(Key(self.name), Label(self.data_type), body, inline=True)
 
-        if len(self.constraints) == 1:
-            constraint_part = constraints_str
-        else:
-            constraint_part = f"[{constraints_str}]"
-
-        return f"{self.name}: {self.data_type} {{constraint: {constraint_part}}}"
+    def to_d2_format(self) -> str:
+        return emit((self.statement(),))[0]
 
 
 class SQLTable(Shape):
@@ -111,35 +121,15 @@ class SQLTable(Shape):
         return field
 
     @override
-    def lines(self) -> list[str]:
-        properties: list[str] = []
-
-        if self.shape is not None:
-            properties.append(f"shape: {self.shape.value}")
-
-        properties.extend(field.to_d2_format() for field in self.fields)
-
-        if (near := non_empty(self.near)) is not None:
-            properties.append(f"near: {near}")
-
-        if (link := non_empty(self.link)) is not None:
-            properties.append(f"link: {link}")
-
-        if self.style is not None:
-            properties.extend(self.style.lines())
-
-        if (icon := non_empty(self.icon)) is not None:
-            properties.append(f"icon: {icon}")
-
-        for shape in self.shapes:
-            properties.extend(shape.lines())
-
-        for connection in self.connections:
-            properties.extend(connection.lines())
-
-        label, label_lines = label_parts(self.label)
-        return add_label_and_properties(
-            quote_name(self.name), label, [*label_lines, *properties]
+    def body(self) -> tuple[Statement, ...]:
+        return (
+            *properties((("shape", self.shape),)),
+            *(field.statement() for field in self.fields),
+            *properties((("near", Keyword.of(self.near)), ("link", Url.of(self.link)))),
+            *(self.style.statements() if self.style is not None else ()),
+            *properties((("icon", Url.of(self.icon)),)),
+            *(s for shape in self.shapes for s in shape.statements()),
+            *(s for connection in self.connections for s in connection.statements()),
         )
 
 
