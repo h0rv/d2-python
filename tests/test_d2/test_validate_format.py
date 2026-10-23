@@ -12,19 +12,13 @@ def test_validate__accepts_valid_source() -> None:
 
 @requires_d2
 def test_validate__accepts_a_diagram() -> None:
-    d2.validate(d2.Diagram(shapes=[d2.Shape(name="a")], raw="a.style.fill: red"))
+    d2.validate(d2.Diagram(shapes=[d2.Shape(name="a")]))
 
 
 @requires_d2
 def test_validate__raises_with_the_d2_message() -> None:
     with pytest.raises(d2.D2Error, match="maps must be terminated"):
         d2.validate("a -> {")
-
-
-@requires_d2
-def test_validate__rejects_bad_raw_source() -> None:
-    with pytest.raises(d2.D2Error):
-        d2.validate(d2.Diagram(raw="a -> "))
 
 
 @requires_d2
@@ -65,7 +59,6 @@ def test_render__new_features_compile_with_d2() -> None:
             d2.Shape(name="b", label=d2.Text("**bold**", "md")),
         ],
         connections=[d2.Connection("a", "b", d2.Text("*calls*", "md"))],
-        raw="(a -> b)[0].style.stroke: red",
     )
 
     assert b"<svg" in d2.render(diagram, omit_version=True)

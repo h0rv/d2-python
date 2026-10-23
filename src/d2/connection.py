@@ -12,7 +12,6 @@ from d2.helpers import (
     quote_label,
     quote_name,
 )
-from d2.raw import Raw
 from d2.text import Text
 
 if TYPE_CHECKING:
@@ -74,7 +73,6 @@ class Connection:
         icon: str | None = None,
         link: str | None = None,
         classes: list[str] | None = None,
-        raw: Raw | str | None = None,
     ) -> None:
         self.shape_1 = shape_1
         self.shape_2 = shape_2
@@ -87,7 +85,6 @@ class Connection:
         self.icon = icon
         self.link = link
         self.classes = classes or []
-        self.raw = None if raw is None else Raw.parse(raw)
 
     def lines(self) -> list[str]:
         properties: list[str] = []
@@ -107,8 +104,6 @@ class Connection:
             names = [quote_name(name) for name in self.classes]
             joined = names[0] if len(names) == 1 else f"[{'; '.join(names)}]"
             properties.append(f"class: {joined}")
-        if self.raw is not None:
-            properties += self.raw.lines()
 
         label = self.label
         if isinstance(label, Text):
@@ -134,7 +129,6 @@ class Connection:
             self.icon,
             self.link,
             self.classes,
-            self.raw,
         )
 
     @override

@@ -11,7 +11,6 @@ from d2.helpers import (
     quote_label,
     quote_name,
 )
-from d2.raw import Raw
 from d2.text import Text
 
 if TYPE_CHECKING:
@@ -91,6 +90,18 @@ LabelPosition = Literal[
 ]
 
 
+NearPosition = Literal[
+    "top-left",
+    "top-center",
+    "top-right",
+    "center-left",
+    "center-right",
+    "bottom-left",
+    "bottom-center",
+    "bottom-right",
+]
+
+
 def label_parts(label: str | Text | None) -> tuple[str | None, list[str]]:
     if isinstance(label, Text):
         return None, label.block_lines("label")
@@ -132,7 +143,6 @@ class Shape:
         left: int | None = None,
         vertical_gap: int | None = None,
         horizontal_gap: int | None = None,
-        raw: Raw | str | None = None,
         **kwargs: Text,
     ) -> None:
         self.name = name
@@ -158,7 +168,6 @@ class Shape:
         self.left = left
         self.vertical_gap = vertical_gap
         self.horizontal_gap = horizontal_gap
-        self.raw = None if raw is None else Raw.parse(raw)
         self.kwargs = kwargs
 
     def add_shape(self, shape: Shape) -> None:
@@ -225,9 +234,6 @@ class Shape:
 
         for key, value in self.kwargs.items():
             properties += value.block_lines(key)
-
-        if self.raw is not None:
-            properties += self.raw.lines()
 
         label, label_lines = label_parts(self.label)
         return add_label_and_properties(

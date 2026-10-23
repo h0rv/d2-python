@@ -11,13 +11,12 @@ from d2.helpers import (
     quote_label,
     quote_name,
 )
-from d2.raw import Raw
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
 
     from d2.connection import Connection
-    from d2.shape import LayoutDirection, Shape
+    from d2.shape import LayoutDirection, NearPosition, Shape
     from d2.style import Style
 
 if sys.version_info >= (3, 12):
@@ -79,7 +78,7 @@ class Legend:
     shapes: list[Shape] = field(default_factory=list)
     connections: list[Connection] = field(default_factory=list)
     label: str | None = None
-    near: str | None = None
+    near: NearPosition | None = None
 
     def lines(self) -> list[str]:
         properties = [f"near: {self.near}"] if self.near is not None else []
@@ -148,7 +147,6 @@ class Diagram:
         comments: list[str] | None = None,
         variables: Mapping[str, VarValue] | None = None,
         legend: Legend | None = None,
-        raw: Raw | str | None = None,
     ) -> None:
         self.shapes = shapes or []
         self.connections = connections or []
@@ -161,7 +159,6 @@ class Diagram:
         self.comments = comments or []
         self.variables = dict(variables) if variables is not None else {}
         self.legend = legend
-        self.raws: list[Raw] = [] if raw is None else [Raw.parse(raw)]
 
     def add_shape(self, shape: Shape) -> None:
         self.shapes.append(shape)
@@ -180,9 +177,6 @@ class Diagram:
 
     def add_comment(self, comment: str) -> None:
         self.comments.append(comment)
-
-    def add_raw(self, raw: Raw | str) -> None:
-        self.raws.append(Raw.parse(raw))
 
     def class_lines(self) -> list[str]:
         classes = [
@@ -218,7 +212,6 @@ class Diagram:
             + board_lines("layers", self.layers)
             + board_lines("scenarios", self.scenarios)
             + board_lines("steps", self.steps)
-            + [line for raw in self.raws for line in raw.lines()]
         )
 
     @override

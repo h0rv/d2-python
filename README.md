@@ -110,23 +110,6 @@ print(d2.format("a->b"))
 
 `validate` checks syntax and meaning, but does not lay the diagram out. Some errors, such as `top` and `left` with the dagre layout, only show when you render.
 
-## Raw D2
-
-Anything the objects do not cover can be written as D2 text with `raw=`. It takes a string or a `d2.Raw`, and is dedented for you. On a `Diagram` it is added at the end of the file (or with `add_raw`), on a `Shape` or `Connection` it goes inside the block.
-
-```python
-diagram = d2.Diagram(
-    shapes=[d2.Shape(name="a"), d2.Shape(name="b")],
-    connections=[d2.Connection("a", "b")],
-    raw="""
-        *.style.fill: "#dbeafe"
-        (a -> b)[0].style.stroke: red
-    """,
-)
-```
-
-Use it for globs, imports, `suspend`, connection references and anything newer than this library.
-
 See the [tests](/tests/test_d2) for more detailed usage examples.
 
 
@@ -153,7 +136,7 @@ See the [tests](/tests/test_d2) for more detailed usage examples.
 - [x] Diagram direction, classes and `d2-config` vars
 - [x] Scenarios and steps
 - [x] `d2.validate` and `d2.format` through the d2 command
-- [x] Raw D2 on diagrams, shapes and connections
+- [x] Glob shapes such as `Shape(name="*")` to style every shape
 - [x] Markdown, LaTeX or code as shape and connection labels (`label=d2.Text(...)`)
 - [x] `label_near` and `icon_near` positions, `top` and `left`, grid `vertical_gap` and `horizontal_gap`
 - [x] Connection icons, links and classes

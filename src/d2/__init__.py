@@ -2,8 +2,7 @@ from ._render import D2Error, format, render, validate
 from .class_shape import ClassField, ClassMethod, ClassShape
 from .connection import Arrowhead, ArrowheadShape, Connection, Direction
 from .diagram import Config, Diagram, Layer, Legend
-from .raw import Raw
-from .shape import LabelPosition, Shape, ShapeType
+from .shape import LabelPosition, NearPosition, Shape, ShapeType
 from .style import Style
 from .text import Text
 
@@ -21,7 +20,7 @@ __all__ = [
     "LabelPosition",
     "Layer",
     "Legend",
-    "Raw",
+    "NearPosition",
     "Shape",
     "ShapeType",
     "Style",

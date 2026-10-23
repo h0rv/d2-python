@@ -92,7 +92,9 @@ def test_connection__equality_includes_new_fields() -> None:
 
 def test_layer__label_is_the_board_title() -> None:
     diagram = d2.Diagram(
-        scenarios=[d2.Layer("slow", d2.Diagram(raw="a"), label="Slow path")]
+        scenarios=[
+            d2.Layer("slow", d2.Diagram(shapes=[d2.Shape(name="a")]), label="Slow path")
+        ]
     )
 
     assert str(diagram) == "scenarios: {\n  slow: Slow path {\n    a\n  }\n}"
