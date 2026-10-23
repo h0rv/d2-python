@@ -1,7 +1,7 @@
 import sys
 from typing import Literal
 
-from d2.helpers import add_label_and_properties
+from d2.helpers import add_label_and_properties, quote_label
 
 if sys.version_info >= (3, 12):
     from typing import override
@@ -21,7 +21,7 @@ def render_value(value: str | float | bool) -> str | None:
     if isinstance(value, bool):
         return stringify_bool(value)
     if isinstance(value, str):
-        return value if value != "" else None
+        return quote_label(value) if value != "" else None
     return str(value)
 
 

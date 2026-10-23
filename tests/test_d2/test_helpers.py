@@ -95,3 +95,8 @@ def test_quote_label_keeps_already_quoted_labels() -> None:
 
 def test_add_label_and_properties_quotes_label() -> None:
     assert add_label_and_properties("a", "x: y", []) == ['a: "x: y"']
+
+
+def test_quote_name_quotes_style_keywords() -> None:
+    assert quote_name("shadow") == '"shadow"'
+    assert quote_name("Fill") == '"Fill"'

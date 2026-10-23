@@ -28,13 +28,14 @@ def render(
     *,
     layout: Literal["dagre", "elk", "tala"] | None = None,
     theme: int | None = None,
+    target: str = "",
 ) -> bytes:
     command = [find_d2()]
     if layout is not None:
         command += ["--layout", layout]
     if theme is not None:
         command += ["--theme", str(theme)]
-    command += ["--stdout-format", format, "-", "-"]
+    command += ["--target", target, "--stdout-format", format, "-", "-"]
 
     result = subprocess.run(
         command, input=str(diagram).encode(), capture_output=True, check=False
