@@ -2,6 +2,8 @@ from .connection import Connection
 from .connection import Direction
 from .diagram import Diagram
 from .diagram import Layer
+from .render import D2Error
+from .render import render
 from .shape import Shape
 from .shape import ShapeType
 from .shape import Text
@@ -17,4 +19,6 @@ __all__ = [
     "Text",
     "Style",
     "Layer",
+    "D2Error",
+    "render",
 ]
