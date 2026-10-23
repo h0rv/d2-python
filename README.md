@@ -10,18 +10,26 @@ This project is a maintained hard fork of [MrBlenny/py-d2](https://github.com/Mr
 
 ## Install
 
-```bash
-pip install d2-python
-```
-
-To render diagrams from Python, also install the official d2 binary with the `bin` extra:
+Add d2-python to your project with [uv](https://docs.astral.sh/uv/). The `bin` extra also installs the official D2 binary, so `d2.render` works without installing D2 yourself:
 
 ```bash
-pip install 'd2-python[bin]'
 uv add 'd2-python[bin]'
 ```
 
-If you already have the `d2` command on your PATH, you do not need the extra. The binary is published on its own as [`d2-bin`](packages/d2-bin), so `uvx d2-bin` runs D2 without installing anything.
+Run a single script without a project:
+
+```bash
+uv run --with 'd2-python[bin]' diagram.py
+```
+
+Run the D2 command itself without installing anything, or install it once so `d2` is on your PATH:
+
+```bash
+uvx d2-bin --version
+uv tool install d2-bin
+```
+
+With pip, use `pip install 'd2-python[bin]'`. If you already have the `d2` command on your PATH, you can leave out the `bin` extra.
 
 ## Quick start
 
