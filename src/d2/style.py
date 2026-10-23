@@ -1,6 +1,3 @@
-from typing import List
-from typing import Optional
-
 from d2.helpers import add_label_and_properties
 
 
@@ -11,15 +8,15 @@ def stringify_bool(val: bool) -> str:
 class Style:
     def __init__(
         self,
-        stroke: Optional[str] = None,
-        stroke_width: Optional[int] = None,
-        fill: Optional[str] = None,
-        shadow: Optional[bool] = None,
-        opacity: Optional[float] = None,
-        stroke_dash: Optional[int] = None,
-        three_d: Optional[bool] = None,
-        font_color: Optional[str] = None,
-        border_radius: Optional[str] = None,
+        stroke: str | None = None,
+        stroke_width: int | None = None,
+        fill: str | None = None,
+        shadow: bool | None = None,
+        opacity: float | None = None,
+        stroke_dash: int | None = None,
+        three_d: bool | None = None,
+        font_color: str | None = None,
+        border_radius: str | None = None,
     ):
         self.stroke = stroke
         self.stroke_width = stroke_width
@@ -31,8 +28,8 @@ class Style:
         self.font_color = font_color
         self.border_radius = border_radius
 
-    def lines(self) -> List[str]:
-        styles: List[str] = []
+    def lines(self) -> list[str]:
+        styles: list[str] = []
 
         if self.stroke:
             styles.append(f"stroke: {self.stroke}")

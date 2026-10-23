@@ -2,10 +2,6 @@ from __future__ import annotations
 
 from enum import Enum
 from typing import Any
-from typing import Dict
-from typing import List
-from typing import Optional
-from typing import Union
 
 from d2.connection import Connection
 from d2.connection import Direction
@@ -24,7 +20,7 @@ class SQLField:
         self,
         name: str,
         data_type: str,
-        constraint: Optional[Union[SQLConstraint, str, List[Union[SQLConstraint, str]]]] = None,
+        constraint: SQLConstraint | str | list[SQLConstraint | str] | None = None,
     ):
         self.name = name
         self.data_type = data_type
@@ -56,12 +52,12 @@ class SQLTable(Shape):
     def __init__(
         self,
         name: str,
-        fields: Optional[Dict[str, Union[str, Dict[str, Any]]]] = None,
-        label: Optional[str] = None,
-        style: Optional[Any] = None,
-        icon: Optional[str] = None,
-        near: Optional[str] = None,
-        link: Optional[str] = None,
+        fields: dict[str, str | dict[str, Any]] | None = None,
+        label: str | None = None,
+        style: Any | None = None,
+        icon: str | None = None,
+        near: str | None = None,
+        link: str | None = None,
     ):
         super().__init__(
             name=name,
@@ -73,7 +69,7 @@ class SQLTable(Shape):
             link=link,
         )
 
-        self.fields: List[SQLField] = []
+        self.fields: list[SQLField] = []
 
         # Process fields if provided
         if fields:
@@ -91,14 +87,14 @@ class SQLTable(Shape):
         self,
         name: str,
         data_type: str,
-        constraint: Optional[Union[SQLConstraint, str, List[Union[SQLConstraint, str]]]] = None,
+        constraint: SQLConstraint | str | list[SQLConstraint | str] | None = None,
     ) -> SQLField:
         """Add a field to the SQL table."""
         field = SQLField(name, data_type, constraint)
         self.fields.append(field)
         return field
 
-    def lines(self) -> List[str]:
+    def lines(self) -> list[str]:
         """Generate D2 lines for the SQL table."""
         # Get the base properties from parent class
         properties = []
@@ -147,7 +143,7 @@ def create_foreign_key_connection(
     source_field: str,
     target_table: str,
     target_field: str,
-    label: Optional[str] = None,
+    label: str | None = None,
 ) -> Connection:
     """Create a foreign key connection between two tables."""
     source = f"{source_table}.{source_field}"
