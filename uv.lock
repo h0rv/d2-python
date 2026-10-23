@@ -85,7 +85,7 @@ wheels = [
 
 [[package]]
 name = "d2-python"
-version = "2.0.0"
+version = "2.0.1"
 source = { editable = "." }
 dependencies = [
     { name = "typing-extensions", marker = "python_full_version < '3.12'" },
