@@ -23,4 +23,9 @@ uv run python examples/shapes.py
 | [boards.py](boards.py) | Layers, scenarios and steps, rendering the root board and one layer |
 | [config.py](config.py) | Layout engine, theme, direction and sketch mode through `vars` |
 | [ascii.py](ascii.py) | ASCII output printed with `d2.render(diagram, "txt")` |
-
+| [validation.py](validation.py) | `d2.validate`, `d2.fmt` and a glob shape that styles every shape |
+| [labels_and_positions.py](labels_and_positions.py) | Markdown labels on shapes and connections, `label_near`, `icon_near`, connection icons and links |
+| [fixed_positions.py](fixed_positions.py) | `top` and `left` positions (tala) and grid `vertical_gap` and `horizontal_gap` |
+| [c4_and_sequence.py](c4_and_sequence.py) | The `c4-person` shape and a sequence diagram |
+| [variables_and_legend.py](variables_and_legend.py) | `variables` with `${name}` substitution, gradients, a legend and a board label |
+| [render_options.py](render_options.py) | Sketch, dark theme, pad, scale, salt, gif and pptx output, ASCII mode |

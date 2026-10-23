@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, TypeAlias, TypedDict
 
 from d2.connection import Connection, Direction
 from d2.helpers import add_label_and_properties, non_empty, quote_name
-from d2.shape import Shape, ShapeType
+from d2.shape import Shape, ShapeType, label_parts
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -137,7 +137,10 @@ class SQLTable(Shape):
         for connection in self.connections:
             properties.extend(connection.lines())
 
-        return add_label_and_properties(quote_name(self.name), self.label, properties)
+        label, label_lines = label_parts(self.label)
+        return add_label_and_properties(
+            quote_name(self.name), label, [*label_lines, *properties]
+        )
 
 
 def create_foreign_key_connection(

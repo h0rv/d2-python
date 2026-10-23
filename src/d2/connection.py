@@ -5,7 +5,14 @@ from dataclasses import dataclass
 from enum import Enum, StrEnum
 from typing import TYPE_CHECKING
 
-from d2.helpers import add_label_and_properties, indent_lines, non_empty, quote_label
+from d2.helpers import (
+    add_label_and_properties,
+    indent_lines,
+    non_empty,
+    quote_label,
+    quote_name,
+)
+from d2.text import Text
 
 if TYPE_CHECKING:
     from d2.style import Style
@@ -56,13 +63,16 @@ class Connection:
         self,
         shape_1: str,
         shape_2: str,
-        label: str | None = None,
+        label: str | Text | None = None,
         direction: Direction = Direction.TO,
         *,
         style: Style | None = None,
         source_arrowhead: Arrowhead | None = None,
         target_arrowhead: Arrowhead | None = None,
         tooltip: str | None = None,
+        icon: str | None = None,
+        link: str | None = None,
+        classes: list[str] | None = None,
     ) -> None:
         self.shape_1 = shape_1
         self.shape_2 = shape_2
@@ -72,6 +82,9 @@ class Connection:
         self.source_arrowhead = source_arrowhead
         self.target_arrowhead = target_arrowhead
         self.tooltip = tooltip
+        self.icon = icon
+        self.link = link
+        self.classes = classes or []
 
     def lines(self) -> list[str]:
         properties: list[str] = []
@@ -83,9 +96,21 @@ class Connection:
             properties += self.target_arrowhead.lines("target-arrowhead")
         if self.style is not None:
             properties += self.style.lines()
+        if (icon := non_empty(self.icon)) is not None:
+            properties.append(f"icon: {icon}")
+        if (link := non_empty(self.link)) is not None:
+            properties.append(f"link: {link}")
+        if self.classes:
+            names = [quote_name(name) for name in self.classes]
+            joined = names[0] if len(names) == 1 else f"[{'; '.join(names)}]"
+            properties.append(f"class: {joined}")
 
+        label = self.label
+        if isinstance(label, Text):
+            properties = [*label.block_lines("label"), *properties]
+            label = None
         base = f"{self.shape_1} {self.direction.value} {self.shape_2}"
-        return add_label_and_properties(base, non_empty(self.label), properties)
+        return add_label_and_properties(base, non_empty(label), properties)
 
     @override
     def __repr__(self) -> str:
@@ -101,6 +126,9 @@ class Connection:
             self.source_arrowhead,
             self.target_arrowhead,
             self.tooltip,
+            self.icon,
+            self.link,
+            self.classes,
         )
 
     @override
