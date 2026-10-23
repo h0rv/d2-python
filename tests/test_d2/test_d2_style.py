@@ -41,6 +41,19 @@ def test_d2_style_three_d():
     assert str(style) == "style: {\n  3d: true\n}"
 
 
+def test_d2_style_font_color():
+    style = Style(font_color="red")
+    assert str(style) == "style: {\n  font-color: red\n}"
+
+def test_d2_style_font_color_hex():
+    style = Style(font_color='"#274e13"')
+    assert str(style) == 'style: {\n  font-color: "#274e13"\n}'
+
+def test_d2_style_border_radius():
+    style = Style(border_radius="999")
+    assert str(style) == "style: {\n  border-radius: 999\n}"
+
+
 def test_d2_style_all():
     style = Style(
         stroke="red",
@@ -50,6 +63,8 @@ def test_d2_style_all():
         opacity=0.5,
         stroke_dash=2,
         three_d=True,
+        font_color='"#274e13"',
+        border_radius='999',
     )
     assert str(style) == "\n".join(
         [
@@ -61,6 +76,8 @@ def test_d2_style_all():
             "  opacity: 0.5",
             "  stroke-dash: 2",
             "  3d: true",
+            "  font-color: \"#274e13\"",
+            "  border-radius: 999",
             "}",
         ]
     )
