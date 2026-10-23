@@ -37,6 +37,7 @@ WHEEL_TAGS: dict[Platform, str] = {
 
 PACKAGE_DIR = Path(__file__).resolve().parent
 DIST_INFO = f"d2_bin-{D2_VERSION}.dist-info"
+ENTRY_POINTS = b"[console_scripts]\nd2-bin = d2_bin.__main__:main\n"
 DATA_DIR = f"d2_bin-{D2_VERSION}.data"
 LICENSE_FILES = ("LICENSE.txt", "THIRD_PARTY_NOTICES.txt")
 SUMMARY = (
@@ -152,6 +153,7 @@ def build_wheel(platform: Platform, checksums: dict[str, str], out_dir: Path) ->
         WheelFile(f"{DATA_DIR}/scripts/{exe}", binary, 0o755),
         WheelFile(f"{DIST_INFO}/METADATA", metadata(), 0o644),
         WheelFile(f"{DIST_INFO}/WHEEL", wheel_file(tag), 0o644),
+        WheelFile(f"{DIST_INFO}/entry_points.txt", ENTRY_POINTS, 0o644),
         *licenses,
     ]
     files.append(WheelFile(f"{DIST_INFO}/RECORD", record(files), 0o644))
