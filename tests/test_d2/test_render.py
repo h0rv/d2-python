@@ -73,3 +73,23 @@ def test_render__txt() -> None:
 def test_render__invalid_source_raises_d2_error() -> None:
     with pytest.raises(d2.D2Error):
         d2.render("a -> {")
+
+
+@requires_d2
+def test_render__boards_renders_root_or_target() -> None:
+    diagram = d2.Diagram(
+        shapes=[d2.Shape(name="root_shape")],
+        layers=[
+            d2.Layer(name="detail", diagram=d2.Diagram(shapes=[d2.Shape(name="inner")]))
+        ],
+    )
+    assert b"root_shape" in d2.render(diagram, "txt")
+    assert b"inner" in d2.render(diagram, "txt", target="layers.detail")
+
+
+@requires_d2
+def test_render__hex_colors_and_keyword_names() -> None:
+    diagram = d2.Diagram(
+        shapes=[d2.Shape(name="shadow", style=d2.Style(fill="#dbeafe"))]
+    )
+    assert d2.render(diagram).startswith(b"<?xml")

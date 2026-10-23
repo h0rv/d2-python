@@ -137,3 +137,7 @@ def test_d2_style_shape_options() -> None:
         "}",
     ]
     assert str(style) == "\n".join(expected_lines)
+
+
+def test_d2_style_quotes_hex_colors() -> None:
+    assert str(Style(fill="#dbeafe")) == 'style: {\n  fill: "#dbeafe"\n}'
