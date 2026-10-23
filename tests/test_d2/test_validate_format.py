@@ -23,25 +23,25 @@ def test_validate__raises_with_the_d2_message() -> None:
 
 @requires_d2
 def test_format__normalizes_source() -> None:
-    assert d2.format("a->b\nx:{y}").split("\n")[:2] == ["a -> b", "x: {y}"]
+    assert d2.fmt("a->b\nx:{y}").split("\n")[:2] == ["a -> b", "x: {y}"]
 
 
 @requires_d2
 def test_format__is_idempotent() -> None:
-    once = d2.format("a->b")
+    once = d2.fmt("a->b")
 
-    assert d2.format(once) == once
+    assert d2.fmt(once) == once
 
 
 @requires_d2
 def test_format__returns_already_formatted_source_unchanged() -> None:
-    assert d2.format("a -> b\n") == "a -> b\n"
+    assert d2.fmt("a -> b\n") == "a -> b\n"
 
 
 @requires_d2
 def test_format__raises_on_invalid_source() -> None:
     with pytest.raises(d2.D2Error):
-        d2.format("a -> {")
+        d2.fmt("a -> {")
 
 
 @requires_d2

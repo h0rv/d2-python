@@ -92,12 +92,10 @@ ignore = [
     "S606", # execs the resolved d2 binary
 ]
 "src/d2/_render.py" = [
-    "A001",    # public `format` function
     "A002",    # public `format` parameter
     "PLC0415", # d2_bin is an optional dependency imported on use
     "S603",    # runs the resolved d2 binary
 ]
-"src/d2/__init__.py" = ["A004"] # public `format` function
 "src/d2/diagram.py" = ["A002"] # public `vars` parameter
 "src/d2/style.py" = ["FBT001"] # public positional bool parameters
 

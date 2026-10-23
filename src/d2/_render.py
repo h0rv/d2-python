@@ -87,6 +87,6 @@ def validate(source: Diagram | str) -> None:
     run_d2(["validate", "-"], source)
 
 
-def format(source: Diagram | str) -> str:
+def fmt(source: Diagram | str) -> str:
     formatted = run_d2(["fmt", "-"], source).decode()
     return formatted if formatted != "" else str(source)

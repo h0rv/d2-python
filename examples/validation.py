@@ -15,7 +15,7 @@ def main() -> None:
     )
 
     d2.validate(diagram)
-    print(d2.format(diagram))
+    print(d2.fmt(diagram))
 
     try:
         d2.validate("api -> {")

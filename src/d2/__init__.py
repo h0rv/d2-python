@@ -1,4 +1,4 @@
-from ._render import D2Error, format, render, validate
+from ._render import D2Error, fmt, render, validate
 from .class_shape import ClassField, ClassMethod, ClassShape
 from .connection import Arrowhead, ArrowheadShape, Connection, Direction
 from .diagram import Config, Diagram, Layer, Legend
@@ -25,7 +25,7 @@ __all__ = [
     "ShapeType",
     "Style",
     "Text",
-    "format",
+    "fmt",
     "render",
     "validate",
 ]

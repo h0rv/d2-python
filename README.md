@@ -93,7 +93,7 @@ The format can be `"svg"` (the default), `"png"`, `"pdf"`, `"gif"`, `"pptx"` or 
 
 ## Validating and formatting
 
-`d2.validate` checks D2 source with `d2 validate` and raises `d2.D2Error` with d2's message when the source is wrong. `d2.format` returns the source formatted by `d2 fmt`. Both take a `Diagram` or a string, so they suit code or an LLM that writes D2 text and needs to check it.
+`d2.validate` checks D2 source with `d2 validate` and raises `d2.D2Error` with d2's message when the source is wrong. `d2.fmt` returns the source formatted by `d2 fmt`. Both take a `Diagram` or a string, so they suit code or an LLM that writes D2 text and needs to check it.
 
 ```python
 import d2
@@ -105,7 +105,7 @@ try:
 except d2.D2Error as error:
     print(error)
 
-print(d2.format("a->b"))
+print(d2.fmt("a->b"))
 ```
 
 `validate` checks syntax and meaning, but does not lay the diagram out. Some errors, such as `top` and `left` with the dagre layout, only show when you render.
@@ -135,7 +135,7 @@ See the [tests](/tests/test_d2) for more detailed usage examples.
 - [x] Shape tooltips, size, grids, direction and classes
 - [x] Diagram direction, classes and `d2-config` vars
 - [x] Scenarios and steps
-- [x] `d2.validate` and `d2.format` through the d2 command
+- [x] `d2.validate` and `d2.fmt` through the d2 command
 - [x] Glob shapes such as `Shape(name="*")` to style every shape
 - [x] Markdown, LaTeX or code as shape and connection labels (`label=d2.Text(...)`)
 - [x] `label_near` and `icon_near` positions, `top` and `left`, grid `vertical_gap` and `horizontal_gap`
