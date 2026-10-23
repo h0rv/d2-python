@@ -8,6 +8,8 @@ from .connection import Direction
 from .diagram import Config
 from .diagram import Diagram
 from .diagram import Layer
+from .render import D2Error
+from .render import render
 from .shape import Shape
 from .shape import ShapeType
 from .shape import Text
@@ -29,4 +31,6 @@ __all__ = [
     "ClassShape",
     "ClassField",
     "ClassMethod",
+    "D2Error",
+    "render",
 ]
