@@ -59,6 +59,18 @@ This can be rendered using `d2 graph.d2 graph.svg && open graph.svg` or [https:/
 
 ![example graph](/docs/images/d2.svg)
 
+Pick a shape type with `shape=d2.ShapeType.<name>` and add a tooltip with `tooltip=`:
+
+```python
+db = d2.Shape(
+    name="db",
+    shape=d2.ShapeType.cylinder,
+    tooltip="Primary database",
+)
+```
+
+A tooltip is shown when you hover the shape in the rendered SVG. Connections take `tooltip=` too.
+
 ## Rendering
 
 `d2.render` runs the d2 command and returns the image as bytes. It uses the binary from `d2-bin` when that is installed, and otherwise looks for `d2` on your PATH.
@@ -152,11 +164,7 @@ Use `layers`, `scenarios` and `steps` for other boards. Use `comments` (or `add_
 
 ## Examples
 
-See [`examples/`](examples/):
-
-```sh
-uv run python examples/simple_sql_schema.py
-```
+Runnable examples for every feature are in [`examples/`](examples/README.md).
 
 ## Development
 

@@ -32,3 +32,19 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - run: uv sync --locked
       - run: uv run pytest
+
+  examples:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v7
+      - run: uv sync --locked --extra bin
+      - run: |
+          project="$PWD"
+          output="$(mktemp -d)"
+          cd "$output"
+          for example in "$project"/examples/*.py; do
+            echo "::group::$example"
+            "$project/.venv/bin/python" "$example"
+            echo "::endgroup::"
+          done

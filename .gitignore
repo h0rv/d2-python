@@ -147,3 +147,7 @@ _cache/
 **/*/*test*.jpeg
 **/*/*test*.jpg
 **/*/*test*.png
+
+# example output
+/examples/*.svg
+/examples/*.d2
