@@ -20,7 +20,7 @@ uv run python examples/shapes.py
 | [classes.py](classes.py) | Reusable style classes |
 | [sql_tables.py](sql_tables.py) | SQL tables with constraints and a foreign key |
 | [uml_classes.py](uml_classes.py) | UML class shapes with fields, methods and inheritance |
-| [boards.py](boards.py) | Layers, scenarios and steps, written to a `.d2` file |
+| [boards.py](boards.py) | Layers, scenarios and steps, rendering the root board and one layer |
 | [config.py](config.py) | Layout engine, theme, direction and sketch mode through `vars` |
 | [ascii.py](ascii.py) | ASCII output printed with `d2.render(diagram, "txt")` |
 
